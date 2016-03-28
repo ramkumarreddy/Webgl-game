@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html><head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<title></title>
+<!-- <link type="text/css" href="WebGL%20-%203D%20Camera%20Look%20At_files/jquery-ui-1.css" rel="stylesheet"> -->
+<link type="text/css" href="WebGL%20-%203D%20Camera%20Look%20At_files/webgl-tutorials.css" rel="stylesheet">
+<style>
+#ui {
+    width: 200px;
+}
+#rotation>canvas {
+    background-color: rgba(255, 255, 255, 0.6) !important;
+}
+</style>
+<script src="WebGL%20-%203D%20Camera%20Look%20At_files/jquery-1.js"></script>
+<script src="WebGL%20-%203D%20Camera%20Look%20At_files/jquery-ui-1.js"></script>
+<script src="WebGL%20-%203D%20Camera%20Look%20At_files/jquery.js"></script>
+<script src="WebGL%20-%203D%20Camera%20Look%20At_files/webgl-utils.js"></script>
+<script>
+"use strict";
+
+$(function()
+{
+  main();
+});
+
+function main()
+{
+  // Get A WebGL context
+  var canvas = document.getElementById("canvas");
+  var gl = getWebGLContext(canvas);
+  if (!gl)
+  {
+    return;
+  }
+
+  //gl.enable(gl.CULL_FACE);
+  gl.enable(gl.DEPTH_TEST);
+
+  var program = createProgramFromScripts(gl, ["3d-vertex-shader", "3d-fragment-shader"]);
+    gl.useProgram(program);
+
+    // look up where the vertex data needs to go.
+    var positionLocation = gl.getAttribLocation(program, "a_position");
+    var colorLocation = gl.getAttribLocation(program, "a_color");
+
+    // lookup uniforms
+    var matrixLocation = gl.getUniformLocation(program, "u_matrix");
+
+  // Create a buffer.
+  var obj;
+  function drawObject(matrix,vpmatrix,positions,colors,noofvertices,istriangle)
+  {
+    // setup GLSL program
+    
+    var buffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    gl.enableVertexAttribArray(positionLocation);
+    gl.vertexAttribPointer(positionLocation, 3, gl.FLOAT, false, 0, 0);
+    //var positions = setGeometry(gl);
+    
+    //alert(positions);
+    gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
+    var buffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    gl.enableVertexAttribArray(colorLocation);
+    gl.vertexAttribPointer(colorLocation, 3, gl.UNSIGNED_BYTE, true, 0, 0);
+    //var colors=setColors(gl);
+    
+    //alert(colors);
+    gl.bufferData(gl.ARRAY_BUFFER,colors,gl.STATIC_DRAW);
+    
+
+    matrix = matrixMultiply(matrix,vpmatrix);
+    
+    // Set the matrix.
+    gl.uniformMatrix4fv(matrixLocation, false, matrix);
+
+    // Draw the geometry.
+    if(istriangle==1)
+      gl.drawArrays(gl.TRIANGLES, 0, noofvertices);
+    else
+      gl.drawArrays(gl.LINES, 0, noofvertices);
+
+  }
+  
+  //drawObject();
+  //alert("hi");
+  // Set Geometry.
+  //setGeometry(gl);
+
+  // Create a buffer for colors.
+  
+
+  // We'll supply RGB as bytes.
+  
+
+  // Set Colors.
+  
+
+  function radToDeg(r)
+  {
+    return r * 180 / Math.PI;
+  }
+
+  function degToRad(d)
+  {
+    return d * Math.PI / 180;
+  }
+
+  var translation = [50, 400, 220];
+  var rotation = [degToRad(0), degToRad(0), degToRad(0)];
+  var scale = [1, 1, 1];
+  var cameraAngleRadians = degToRad(0);
+  var fieldOfViewRadians = degToRad(60);
+  var strikermovX = 0,strikermovY = 0;
+  var mouseX = 0,mouseY = 0;
+  //drawScene();
+  
+  setInterval(drawScene, 10);
+
+  // addEventListener('keydown', function (event) {
+  //   var dx,dy,rot,mx,my;
+  //   dx=dy=mx=my=0;
+  //   rot=Math.atan2(rotation[0],rotation[1])*180/Math.PI;
+  //   var crot = radToDeg(cameraAngleRadians);
+  //   if (event.keyCode == 87)
+  //   {
+  //     dy=-5.0;
+  //   }
+  //   else if(event.keyCode == 83)
+  //   {
+  //     dy+=5.0;
+  //   }
+  //   else if (event.keyCode == 65)
+  //   {
+  //     dx-=5.0;
+  //   }
+  //   else if(event.keyCode == 68)
+  //   {
+  //     dx+=5.0;
+  //   }
+  //   // else if (event.keyCode == 37)
+  //   // {
+  //   //   rot-=5.0;
+  //   // }
+  //   // else if(event.keyCode == 39)
+  //   // {
+  //   //   rot+=5.0;
+  //   // }
+  //   // else if (event.keyCode == 38)
+  //   // {
+  //   //   mx-=0.2;
+  //   // }
+  //   // else if(event.keyCode == 40)
+  //   // {
+  //   //   mx+=0.2;
+  //   // }
+  //   else if(event.keyCode == 66)
+  //   {
+  //     crot+=5;
+  //   }
+  //   else
+  //   {
+  //     return;
+  //   }
+  //   //alert(crot);
+  //   translation[0]+=dx;
+  //   translation[1]+=dy;
+  //   rotation[0]=Math.sin(rot * Math.PI / 180);
+  //   rotation[1]=Math.cos(rot * Math.PI / 180);
+  //   scale[0]+=mx;
+  //   cameraAngleRadians=degToRad(crot);
+
+  //   //drawScene();
+  // });
+
+
+  addEventListener('keydown', function (event) {
+    if(event.keyCode==39)
+    {
+      strikermov +=1;
+    }
+  }); 
+
+addEventListener('mousemove', function(event) {
+  mouseY = event.clientY;
+  mouseX = event.clientX;
+  document.getElementById('myDiv').innerHTML = mouseX;
+});
+
+  /*
+  drawScene();
+
+  // Setup a ui.
+  $("#cameraAngle").gmanSlider({value: radToDeg(cameraAngleRadians), slide: updateCameraAngle, min: -360, max: 360});
+
+  function updateFieldOfView(event, ui) {
+    fieldOfViewRadians = degToRad(ui.value);
+    drawScene();
+  }
+
+  function updateCameraAngle(event, ui) {
+    cameraAngleRadians = degToRad(ui.value);
+    drawScene();
+  }
+  */
+
+
+  // Draw the scene.
+  function computematrix(translation,rotation,scale)
+  {
+
+    var translationMatrix = makeTranslation(translation[0], translation[1], translation[2]);
+    var rotationXMatrix = makeXRotation(rotation[0]);
+    var rotationYMatrix = makeYRotation(rotation[1]);
+    var rotationZMatrix = makeZRotation(rotation[2]);
+    var scaleMatrix = makeScale(scale[0], scale[1], scale[2]);
+
+    // Multiply the matrices.
+    var matrix = matrixMultiply(scaleMatrix, rotationZMatrix);
+    matrix = matrixMultiply(matrix, rotationYMatrix);
+    matrix = matrixMultiply(matrix, rotationXMatrix);
+    matrix = matrixMultiply(matrix, translationMatrix);
+
+    return matrix;
+  }
+  var y=0;
+  function drawScene()
+  {
+
+    // Clear the canvas AND the depth buffer.
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+    // Compute the projection matrix
+    var aspect = canvas.clientWidth / canvas.clientHeight;
+    var projectionMatrix = makePerspective(fieldOfViewRadians, aspect, 1, 2000);
+    
+    
+    // Use matrix math to compute a position on the circle.
+    var cameraMatrix = makeTranslation(50, 0, 0);
+    cameraMatrix = matrixMultiply( cameraMatrix, makeYRotation(cameraAngleRadians));
+    cameraMatrix = matrixMultiply( cameraMatrix, makeTranslation(-150, 0, -360));
+
+    // Get the camera's postion from the matrix we computed
+    var cameraPosition = [
+        cameraMatrix[12],
+        cameraMatrix[13],
+        cameraMatrix[14]];
+
+    var up = [0, 1, 0];
+    // console.log(cameraPosition);
+    // Compute the camera's matrix using look at.
+    var cameraMatrix = makeLookAt([-350,400,300], [0,400,300], up);
+    // Make a view matrix from the camera matrix.
+    var viewMatrix = makeInverse(cameraMatrix);
+
+    var vpmatrix = matrixMultiply(viewMatrix,projectionMatrix);
+
+    var edgesofboard = cuboidv(12,18,300);
+    var boardcolor=centerboardcolor();
+    var black = blackcolor();
+    var coinblack = cylinderblack();
+
+///// left baord edges
+    // var matrix = computematrix(translation,rotation,scale);
+    var matrix = computematrix([50,400,155],rotation,scale);
+    drawObject(matrix,vpmatrix,edgesofboard,black,36,1);
+
+
+////  top board edges
+    matrix = computematrix([50,550,296],[degToRad(90), degToRad(0), degToRad(0)],scale);
+    drawObject(matrix,vpmatrix,edgesofboard,black,36,1);
+
+///  bottom board edges
+    matrix = computematrix([50,250,296],[degToRad(90), degToRad(0), degToRad(0)],scale);
+    drawObject(matrix,vpmatrix,edgesofboard,black,36,1);
+
+/// right board edges
+    matrix = computematrix([50,400,437],rotation,scale);
+    drawObject(matrix,vpmatrix,edgesofboard,black,36,1);
+
+    var centerboard = cuboidv(4,270,280);
+    matrix = computematrix([50,400,300],rotation,scale);
+    drawObject(matrix,vpmatrix,centerboard,boardcolor,36,1);
+
+
+///////  lines
+    var centerboard = cuboidv(4,180,1);
+    matrix = computematrix([49,515,298],rotation,scale);
+    drawObject(matrix,vpmatrix,centerboard,black,36,1);
+    matrix = computematrix([49,505,298],rotation,scale);
+    drawObject(matrix,vpmatrix,centerboard,black,36,1);
+    matrix = computematrix([49,285,298],rotation,scale);
+    drawObject(matrix,vpmatrix,centerboard,black,36,1);
+    matrix = computematrix([49,295,298],rotation,scale);
+    drawObject(matrix,vpmatrix,centerboard,black,36,1);
+
+    var centerboard = cuboidv(4,1,180);
+    matrix = computematrix([49,400,195],rotation,scale);
+    drawObject(matrix,vpmatrix,centerboard,black,36,1);
+    matrix = computematrix([49,400,205],rotation,scale);
+    drawObject(matrix,vpmatrix,centerboard,black,36,1);
+    matrix = computematrix([49,400,390],rotation,scale);
+    drawObject(matrix,vpmatrix,centerboard,black,36,1);
+    matrix = computematrix([49,400,400],rotation,scale);
+    drawObject(matrix,vpmatrix,centerboard,black,36,1);
+
+
+///////////  circles on lines
+    var coin = cylinder(6,5,18);
+    matrix = computematrix([49,290,210],rotation,scale);
+    drawObject(matrix,vpmatrix,coin,coinblack,216,1);
+    matrix = computematrix([49,290,390],rotation,scale);
+    drawObject(matrix,vpmatrix,coin,coinblack,216,1);
+
+    matrix = computematrix([49,490,200],rotation,scale);
+    drawObject(matrix,vpmatrix,coin,coinblack,216,1);
+    matrix = computematrix([49,310,200],rotation,scale);
+    drawObject(matrix,vpmatrix,coin,coinblack,216,1);
+
+    matrix = computematrix([49,490,395],rotation,scale);
+    drawObject(matrix,vpmatrix,coin,coinblack,216,1);
+    matrix = computematrix([49,310,395],rotation,scale);
+    drawObject(matrix,vpmatrix,coin,coinblack,216,1);
+
+    matrix = computematrix([49,510,210],rotation,scale);
+    drawObject(matrix,vpmatrix,coin,coinblack,216,1);
+    matrix = computematrix([49,510,390],rotation,scale);
+    drawObject(matrix,vpmatrix,coin,coinblack,216,1);    
+
+
+    /// outer circle
+    var objcircle = circle(30,20,3);
+    var cubecircleblack = circleblack(20);
+    // console.log(cubecircleblack.length);
+    matrix = computematrix([46,400,300],rotation,scale);
+    drawObject(matrix,vpmatrix,objcircle,cubecircleblack,24*5,0);
+
+    /// holes
+    var holes = cylinder(12,3,18);
+    matrix = computematrix([40,272,418],rotation,scale);
+    drawObject(matrix,vpmatrix,holes,coinblack,216,1);
+    matrix = computematrix([40,272,176],rotation,scale);
+    drawObject(matrix,vpmatrix,holes,coinblack,216,1);
+    matrix = computematrix([40,530,418],rotation,scale);
+    drawObject(matrix,vpmatrix,holes,coinblack,216,1);
+    matrix = computematrix([40,530,178],rotation,scale);
+    drawObject(matrix,vpmatrix,holes,coinblack,216,1);
+
+    if(setstriker==1)
+    if(mouseX>200 && mouseX<590)
+      strikermovX = (mouseX - 400)/2.2
+    else if(mouseX<200)
+      strikermovX = -200/2.2;
+    else if(mouseX>190)
+      strikermovX = 190/2.2;
+
+////  striker
+    var striker = cylinder(9,3,18);
+    matrix = computematrix([40,292,305+strikermov],rotation,scale);
+    drawObject(matrix,vpmatrix,striker,coinblack,216,1);
+
+///// coins
+    var coin = cylinder(7,3,18);
+    matrix = computematrix([40,392,350],rotation,scale);
+    drawObject(matrix,vpmatrix,coin,coinblack,216,1);
+
+    y = y+1;
+    // console.log(mouseX);
+
+  }
+}
+
+function makeLookAt(cameraPosition, target, up) {
+  var zAxis = normalize(
+      subtractVectors(cameraPosition, target));
+  var xAxis = cross(up, zAxis);
+  var yAxis = cross(zAxis, xAxis);
+
+  return [
+     xAxis[0], xAxis[1], xAxis[2], 0,
+     yAxis[0], yAxis[1], yAxis[2], 0,
+     zAxis[0], zAxis[1], zAxis[2], 0,
+     cameraPosition[0],
+     cameraPosition[1],
+     cameraPosition[2],
+     1];
+}
+
+function subtractVectors(a, b) {
+  return [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+}
+
+function normalize(v) {
+  var length = Math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+  // make sure we don't divide by 0.
+  if (length > 0.00001) {
+    return [v[0] / length, v[1] / length, v[2] / length];
+  } else {
+    return [0, 0, 0];
+  }
+}
+
+function cross(a, b) {
+  return [a[1] * b[2] - a[2] * b[1],
+          a[2] * b[0] - a[0] * b[2],
+          a[0] * b[1] - a[1] * b[0]];
+}
+
+function makePerspective(fieldOfViewInRadians, aspect, near, far) {
+  var f = Math.tan(Math.PI * 0.5 - 0.5 * fieldOfViewInRadians);
+  var rangeInv = 1.0 / (near - far);
+
+  return [
+    f / aspect, 0, 0, 0,
+    0, f, 0, 0,
+    0, 0, (near + far) * rangeInv, -1,
+    0, 0, near * far * rangeInv * 2, 0
+  ];
+};
+
+function makeTranslation(tx, ty, tz) {
+  return [
+     1,  0,  0,  0,
+     0,  1,  0,  0,
+     0,  0,  1,  0,
+    tx, ty, tz,  1
+  ];
+}
+
+function makeXRotation(angleInRadians) {
+  var c = Math.cos(angleInRadians);
+  var s = Math.sin(angleInRadians);
+
+  return [
+    1, 0, 0, 0,
+    0, c, s, 0,
+    0, -s, c, 0,
+    0, 0, 0, 1
+  ];
+};
+
+function makeYRotation(angleInRadians) {
+  var c = Math.cos(angleInRadians);
+  var s = Math.sin(angleInRadians);
+
+  return [
+    c, 0, -s, 0,
+    0, 1, 0, 0,
+    s, 0, c, 0,
+    0, 0, 0, 1
+  ];
+};
+
+function makeZRotation(angleInRadians) {
+  var c = Math.cos(angleInRadians);
+  var s = Math.sin(angleInRadians);
+  return [
+     c, s, 0, 0,
+    -s, c, 0, 0,
+     0, 0, 1, 0,
+     0, 0, 0, 1,
+  ];
+}
+
+function makeScale(sx, sy, sz) {
+  return [
+    sx, 0,  0,  0,
+    0, sy,  0,  0,
+    0,  0, sz,  0,
+    0,  0,  0,  1,
+  ];
+}
+
+function matrixMultiply(a, b)
+{
+  var mult = new Array(16).fill(0);
+  for(var i=0;i<4;i++)
+  {
+    for(var j=0;j<4;j++)
+    {
+      for(var k=0;k<4;k++)
+      {
+        mult[4*i+j]+=a[4*i+k]*b[4*k+j];
+      }
+    }
+  }
+  return mult;
+}
+
+function makeInverse(m)
+{
+  
+  var inv = new Array(16);
+
+  inv[0] = m[5]*m[10]*m[15] - m[5]*m[14]*m[11] - m[6]*m[9]*m[15] + m[6]*m[13]*m[11] + m[7]*m[9]*m[14] - m[7]*m[13]*m[10];
+  inv[1] = -m[1]*m[10]*m[15] + m[1]*m[14]*m[11] + m[2]*m[9]*m[15] - m[2]*m[13]*m[11] - m[3]*m[9]*m[14] + m[3]*m[13]*m[10];
+  inv[2] = m[1]*m[6]*m[15] - m[1]*m[14]*m[7] - m[2]*m[5]*m[15] + m[2]*m[13]*m[7] + m[3]*m[5]*m[14] - m[3]*m[13]*m[6];
+  inv[3] = -m[1]*m[6]*m[11] + m[1]*m[10]*m[7] + m[2]*m[5]*m[11] - m[2]*m[9]*m[7] - m[3]*m[5]*m[10] + m[3]*m[9]*m[6];
+
+  inv[4] = -m[4]*m[10]*m[15] + m[4]*m[14]*m[11] + m[6]*m[8]*m[15] - m[6]*m[12]*m[11] - m[7]*m[8]*m[14] + m[7]*m[12]*m[10];
+  inv[5] = m[0]*m[10]*m[15] - m[0]*m[14]*m[11] - m[2]*m[8]*m[15] + m[2]*m[12]*m[11] + m[3]*m[8]*m[14] - m[3]*m[12]*m[10];
+  inv[6] = -m[0]*m[6]*m[15] + m[0]*m[14]*m[7] + m[2]*m[4]*m[15] - m[2]*m[12]*m[7] - m[3]*m[4]*m[14] + m[3]*m[12]*m[6];
+  inv[7] = m[0]*m[6]*m[11] - m[0]*m[10]*m[7] - m[2]*m[4]*m[11] + m[2]*m[8]*m[7] + m[3]*m[4]*m[10] - m[3]*m[8]*m[6];
+
+  inv[8] = m[4]*m[9]*m[15] - m[4]*m[13]*m[11] - m[5]*m[8]*m[15] + m[5]*m[12]*m[11] + m[7]*m[8]*m[13] - m[7]*m[12]*m[9];
+  inv[9] = -m[0]*m[9]*m[15] + m[0]*m[13]*m[11] + m[1]*m[8]*m[15] - m[1]*m[12]*m[11] - m[3]*m[8]*m[13] + m[3]*m[12]*m[9];
+  inv[10] = m[0]*m[5]*m[15] - m[0]*m[13]*m[7] - m[1]*m[4]*m[15] + m[1]*m[12]*m[7] + m[3]*m[4]*m[13] - m[3]*m[12]*m[5];
+  inv[11] = -m[0]*m[5]*m[11] + m[0]*m[9]*m[7] + m[1]*m[4]*m[11] - m[1]*m[8]*m[7] - m[3]*m[4]*m[9] + m[3]*m[8]*m[5];
+
+  inv[12] = -m[4]*m[9]*m[14] + m[4]*m[13]*m[10] + m[5]*m[8]*m[14] - m[5]*m[12]*m[10] - m[6]*m[8]*m[13] + m[6]*m[12]*m[9];
+  inv[13] = m[0]*m[9]*m[14] - m[0]*m[13]*m[10] - m[1]*m[8]*m[14] + m[1]*m[12]*m[10] + m[2]*m[8]*m[13] - m[2]*m[12]*m[9];
+  inv[14] = -m[0]*m[5]*m[14] + m[0]*m[13]*m[6] + m[1]*m[4]*m[14] - m[1]*m[12]*m[6] - m[2]*m[4]*m[13] + m[2]*m[12]*m[5];
+  inv[15] = m[0]*m[5]*m[10] - m[0]*m[9]*m[6] - m[1]*m[4]*m[10] + m[1]*m[8]*m[6] + m[2]*m[4]*m[9] - m[2]*m[8]*m[5];
+
+  var det = m[0]*inv[0] + m[1]*inv[4] + m[2]*inv[8] + m[3]*inv[12];
+  for (var i = 0; i < 16; i++)
+  {
+    inv[i] /= det;
+  }
+  return inv;
+  
+}
+
+function matrixVectorMultiply(v, m) {
+  var dst = [];
+  for (var i = 0; i < 4; ++i) {
+    dst[i] = 0.0;
+    for (var j = 0; j < 4; ++j)
+      dst[i] += v[j] * m[j * 4 + i];
+  }
+  return dst;
+};
+
+// Fill the buffer with the values that define a letter 'F'.
+function setGeometry(gl) {
+  var positions = new Float32Array([
+          // left column front
+          0,   0,  0,
+          0, 150,  0,
+          30,   0,  0,
+          0, 150,  0,
+          30, 150,  0,
+          30,   0,  0,
+
+          // top rung front
+          30,   0,  0,
+          30,  30,  0,
+          100,   0,  0,
+          30,  30,  0,
+          100,  30,  0,
+          100,   0,  0,
+
+          // middle rung front
+          30,  60,  0,
+          30,  90,  0,
+          67,  60,  0,
+          30,  90,  0,
+          67,  90,  0,
+          67,  60,  0,
+
+          // left column back
+            0,   0,  30,
+           30,   0,  30,
+            0, 150,  30,
+            0, 150,  30,
+           30,   0,  30,
+           30, 150,  30,
+
+          // top rung back
+           30,   0,  30,
+          100,   0,  30,
+           30,  30,  30,
+           30,  30,  30,
+          100,   0,  30,
+          100,  30,  30,
+
+          // middle rung back
+           30,  60,  30,
+           67,  60,  30,
+           30,  90,  30,
+           30,  90,  30,
+           67,  60,  30,
+           67,  90,  30,
+
+          // top
+            0,   0,   0,
+          100,   0,   0,
+          100,   0,  30,
+            0,   0,   0,
+          100,   0,  30,
+            0,   0,  30,
+
+          // top rung right
+          100,   0,   0,
+          100,  30,   0,
+          100,  30,  30,
+          100,   0,   0,
+          100,  30,  30,
+          100,   0,  30,
+
+          // under top rung
+          30,   30,   0,
+          30,   30,  30,
+          100,  30,  30,
+          30,   30,   0,
+          100,  30,  30,
+          100,  30,   0,
+
+          // between top rung and middle
+          30,   30,   0,
+          30,   60,  30,
+          30,   30,  30,
+          30,   30,   0,
+          30,   60,   0,
+          30,   60,  30,
+
+          // top of middle rung
+          30,   60,   0,
+          67,   60,  30,
+          30,   60,  30,
+          30,   60,   0,
+          67,   60,   0,
+          67,   60,  30,
+
+          // right of middle rung
+          67,   60,   0,
+          67,   90,  30,
+          67,   60,  30,
+          67,   60,   0,
+          67,   90,   0,
+          67,   90,  30,
+
+          // bottom of middle rung.
+          30,   90,   0,
+          30,   90,  30,
+          67,   90,  30,
+          30,   90,   0,
+          67,   90,  30,
+          67,   90,   0,
+
+          // right of bottom
+          30,   90,   0,
+          30,  150,  30,
+          30,   90,  30,
+          30,   90,   0,
+          30,  150,   0,
+          30,  150,  30,
+
+          // bottom
+          0,   150,   0,
+          0,   150,  30,
+          30,  150,  30,
+          0,   150,   0,
+          30,  150,  30,
+          30,  150,   0,
+
+          // left side
+          0,   0,   0,
+          0,   0,  30,
+          0, 150,  30,
+          0,   0,   0,
+          0, 150,  30,
+          0, 150,   0]);
+
+  // Center the F around the origin and Flip it around. We do this because
+  // we're in 3D now with and +Y is up where as before when we started with 2D
+  // we had +Y as down.
+
+  // We could do by changing all the values above but I'm lazy.
+  // We could also do it with a matrix at draw time but you should
+  // never do stuff at draw time if you can do it at init time.
+  var matrix = makeTranslation(-50, -75, -15);
+  matrix = matrixMultiply(matrix, makeXRotation(Math.PI));
+
+  for (var ii = 0; ii < positions.length; ii += 3) {
+    var vector = matrixVectorMultiply([positions[ii + 0], positions[ii + 1], positions[ii + 2], 1], matrix);
+    positions[ii + 0] = vector[0];
+    positions[ii + 1] = vector[1];
+    positions[ii + 2] = vector[2];
+  }
+  return positions;
+}
+
+function cylinder(R,H,n)
+{
+  function degToRad(d)
+  {
+    return d * Math.PI / 180;
+  }
+  var vertices = new Float32Array(36*n);
+  var addangle = 360/n;
+  var angle = 0;
+  var pointer = 0;  
+  for(var i=0;i<n;i+=1)
+  {
+    vertices[pointer+0] = -H/2;
+    vertices[pointer+1] = 0;
+    vertices[pointer+2] = 0;
+    vertices[pointer+3] = -H/2;
+    vertices[pointer+4] = R*Math.sin(degToRad(angle));
+    vertices[pointer+5] = R*Math.cos(degToRad(angle));
+    vertices[pointer+6] = -H/2;
+    vertices[pointer+7] = R*Math.sin(degToRad(angle+addangle));
+    vertices[pointer+8] = R*Math.cos(degToRad(angle+addangle));
+
+    vertices[pointer+9] = H/2;
+    vertices[pointer+10] = 0;
+    vertices[pointer+11] = 0;    
+    vertices[pointer+12] = H/2;
+    vertices[pointer+13] = R*Math.sin(degToRad(angle));
+    vertices[pointer+14] = R*Math.cos(degToRad(angle));
+    vertices[pointer+15] = H/2;
+    vertices[pointer+16] = R*Math.sin(degToRad(angle+addangle));
+    vertices[pointer+17] = R*Math.cos(degToRad(angle+addangle));
+
+    vertices[pointer+18] = vertices[pointer+3];
+    vertices[pointer+19] = vertices[pointer+4];
+    vertices[pointer+20] = vertices[pointer+5];
+    vertices[pointer+21] = vertices[pointer+6];
+    vertices[pointer+22] = vertices[pointer+7];
+    vertices[pointer+23] = vertices[pointer+8];
+    vertices[pointer+24] = vertices[pointer+12];
+    vertices[pointer+25] = vertices[pointer+13];
+    vertices[pointer+26] = vertices[pointer+14];
+
+    vertices[pointer+27] = vertices[pointer+12];
+    vertices[pointer+28] = vertices[pointer+13];
+    vertices[pointer+29] = vertices[pointer+14];
+    vertices[pointer+30] = vertices[pointer+15];
+    vertices[pointer+31] = vertices[pointer+16];
+    vertices[pointer+32] = vertices[pointer+17];
+    vertices[pointer+33] = vertices[pointer+6];
+    vertices[pointer+34] = vertices[pointer+7];
+    vertices[pointer+35] = vertices[pointer+8];
+
+    pointer += 36;
+    angle += addangle;
+
+  }
+  return vertices;  
+}
+
+function circle(R,n,H)
+{
+  function degToRad(d)
+  {
+    return d * Math.PI / 180;
+  }
+  var addangle = 360/n;
+  var angle = 0;
+  var vertices = new Float32Array(18*n);
+  var pointer=0;
+  for(var i=0;i<n;i+=1)
+  {
+    vertices[pointer+0]=H/2;
+    vertices[pointer+1]=R*Math.sin(degToRad(angle));
+    vertices[pointer+2]=R*Math.cos(degToRad(angle));
+    vertices[pointer+3]=H/2;
+    vertices[pointer+4]=R*Math.sin(degToRad(angle+addangle));
+    vertices[pointer+5]=R*Math.cos(degToRad(angle+addangle));
+    vertices[pointer+6]=-H/2;
+    vertices[pointer+7]=R*Math.sin(degToRad(angle));
+    vertices[pointer+8]=R*Math.cos(degToRad(angle));
+
+    vertices[pointer+9]=-H/2;
+    vertices[pointer+10]=R*Math.sin(degToRad(angle));
+    vertices[pointer+11]=R*Math.cos(degToRad(angle));
+    vertices[pointer+12]=H/2;
+    vertices[pointer+13]=R*Math.sin(degToRad(angle+addangle));
+    vertices[pointer+14]=R*Math.cos(degToRad(angle+addangle));
+    vertices[pointer+15]=-H/2;
+    vertices[pointer+16]=R*Math.sin(degToRad(angle+addangle));
+    vertices[pointer+17]=R*Math.cos(degToRad(angle+addangle));
+
+    angle += addangle;
+    pointer += 18;
+  }
+  return vertices;
+
+}
+
+function cuboidv(L,B,H)
+{
+  L = L/2;
+  B = B/2;
+  H = H/2;
+  return new Float32Array([
+        //Front Face
+        -L, -H,  B,
+        L, -H,  B,
+        L,  H,  B,
+        L,  H,  B,
+        -L,  H,  B,
+        -L, -H,  B,
+        //Back Face
+        -L, -H, -B,
+        L, -H, -B,
+        L,  H, -B,
+        L,  H, -B,
+        -L,  H, -B,
+        -L, -H, -B,
+        //left Face
+        -L, -H,  B,
+        -L, -H, -B,
+        -L,  H, -B,
+        -L,  H, -B,
+        -L,  H,  B,
+        -L, -H,  B,
+        //right Face
+        L, -H,  B,
+        L, -H, -B,
+        L,  H, -B,
+        L,  H, -B,
+        L,  H,  B,
+        L, -H,  B,
+        //Top Face
+        -L,  H,  B,
+        -L,  H, -B,
+        L,  H, -B,
+        L,  H, -B,
+        L,  H,  B,
+        -L,  H,  B,
+        //Bottom Face
+        -L, -H,  B,
+        -L, -H, -B,
+        L, -H, -B,
+        L, -H, -B,
+        L, -H,  B,
+        -L, -H,  B
+
+    ]);
+  //return positions;
+}
+function cuboidc()
+{
+  var Color = new Uint8Array(108);
+  for(var i=0;i<12;i++)
+  {
+      Color[3*i]=145;
+      Color[3*i+1]=117;
+      Color[3*i+2]=103;
+  }
+  for(var i=12;i<24;i++)
+  {
+      Color[3*i]=125;
+      Color[3*i+1]=0;
+      Color[3*i+2]=0;
+  }
+  for(var i=24;i<36;i++)
+  {
+      Color[3*i]=1;
+      Color[3*i+1]=166;
+      Color[3*i+2]=117;
+  }
+  return Color;
+}
+
+function centerboardcolor()
+{
+  var Color = new Uint8Array(108);
+  for(var i=0;i<36;i++)
+  {
+      Color[3*i]=235;
+      Color[3*i+1]=209;
+      Color[3*i+2]=160;
+  }
+  return Color;
+}
+
+function blackcolor()
+{
+  var Color = new Uint8Array(108);
+  for(var i=0;i<36;i++)
+  {
+      Color[3*i]=0;
+      Color[3*i+1]=0;
+      Color[3*i+2]=0;
+  }
+  return Color;
+}
+
+function cylinderblack()
+{
+  var Color = new Uint8Array(648);
+  for(var i=0;i<648/3;i++)
+  {
+      Color[3*i]=0;
+      Color[3*i+1]=0;
+      Color[3*i+2]=0;
+  }
+  return Color;
+}
+
+function circleblack(n)
+{
+  var Color = new Uint8Array(18*n);
+  for(var i=0;i<(18*n)/3;i++)
+  {
+      Color[3*i]=0;
+      Color[3*i+1]=0;
+      Color[3*i+2]=0;
+  }
+  return Color;
+}
+
+// Fill the buffer with colors for the 'F'.
+function setColors(gl) {
+  var colours = new Uint8Array([
+          // left column front
+        200,  70, 120,
+        200,  70, 120,
+        200,  70, 120,
+        200,  70, 120,
+        200,  70, 120,
+        200,  70, 120,
+
+          // top rung front
+        200,  70, 120,
+        200,  70, 120,
+        200,  70, 120,
+        200,  70, 120,
+        200,  70, 120,
+        200,  70, 120,
+
+          // middle rung front
+        200,  70, 120,
+        200,  70, 120,
+        200,  70, 120,
+        200,  70, 120,
+        200,  70, 120,
+        200,  70, 120,
+
+          // left column back
+        80, 70, 200,
+        80, 70, 200,
+        80, 70, 200,
+        80, 70, 200,
+        80, 70, 200,
+        80, 70, 200,
+
+          // top rung back
+        80, 70, 200,
+        80, 70, 200,
+        80, 70, 200,
+        80, 70, 200,
+        80, 70, 200,
+        80, 70, 200,
+
+          // middle rung back
+        80, 70, 200,
+        80, 70, 200,
+        80, 70, 200,
+        80, 70, 200,
+        80, 70, 200,
+        80, 70, 200,
+
+          // top
+        70, 200, 210,
+        70, 200, 210,
+        70, 200, 210,
+        70, 200, 210,
+        70, 200, 210,
+        70, 200, 210,
+
+          // top rung right
+        200, 200, 70,
+        200, 200, 70,
+        200, 200, 70,
+        200, 200, 70,
+        200, 200, 70,
+        200, 200, 70,
+
+          // under top rung
+        210, 100, 70,
+        210, 100, 70,
+        210, 100, 70,
+        210, 100, 70,
+        210, 100, 70,
+        210, 100, 70,
+
+          // between top rung and middle
+        210, 160, 70,
+        210, 160, 70,
+        210, 160, 70,
+        210, 160, 70,
+        210, 160, 70,
+        210, 160, 70,
+
+          // top of middle rung
+        70, 180, 210,
+        70, 180, 210,
+        70, 180, 210,
+        70, 180, 210,
+        70, 180, 210,
+        70, 180, 210,
+
+          // right of middle rung
+        100, 70, 210,
+        100, 70, 210,
+        100, 70, 210,
+        100, 70, 210,
+        100, 70, 210,
+        100, 70, 210,
+
+          // bottom of middle rung.
+        76, 210, 100,
+        76, 210, 100,
+        76, 210, 100,
+        76, 210, 100,
+        76, 210, 100,
+        76, 210, 100,
+
+          // right of bottom
+        140, 210, 80,
+        140, 210, 80,
+        140, 210, 80,
+        140, 210, 80,
+        140, 210, 80,
+        140, 210, 80,
+
+          // bottom
+        90, 130, 110,
+        90, 130, 110,
+        90, 130, 110,
+        90, 130, 110,
+        90, 130, 110,
+        90, 130, 110,
+
+          // left side
+        160, 160, 220,
+        160, 160, 220,
+        160, 160, 220,
+        160, 160, 220,
+        160, 160, 220,
+        160, 160, 220]);
+    return colours;
+}
+
+</script>
+<!-- vertex shader -->
+<script id="3d-vertex-shader" type="x-shader/x-vertex">
+  attribute vec4 a_position;
+  attribute vec4 a_color;
+
+  uniform mat4 u_matrix;
+
+  varying vec4 v_color;
+
+  void main()
+  {
+    // Multiply the position by the matrix.
+    gl_Position = u_matrix * a_position;
+
+    // Pass the color to the fragment shader.
+    v_color = a_color;
+  }
+</script>
+<!-- fragment shader -->
+<script id="3d-fragment-shader" type="x-shader/x-fragment">
+  precision mediump float;
+
+  // Passed in from the vertex shader.
+  varying vec4 v_color;
+
+  void main() {
+     gl_FragColor = v_color;
+  }
+</script>
+</head> 
+<body>
+<canvas id="canvas" width="800" height="600"></canvas>
+<div id="uiContainer">
+  <div id="ui">
+    <div id="cameraAngle"><div class="gman-slider-outer"><div class="gman-slider-upper"><div class="gman-slider-label">cameraAngle</div><div class="gman-slider-value">-360</div></div><div class="gman-slider-slider ui-slider ui-slider-horizontal ui-widget ui-widget-content ui-corner-all"><a style="left: 0%;" class="ui-slider-handle ui-state-default ui-corner-all ui-state-focus" href="#"></a></div></div></div>
+  </div>
+</div>
+
+<div id='myDiv'></div>
+
+
+</body></html>

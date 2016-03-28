@@ -35,7 +35,7 @@ function main()
     return;
   }
 
-  //gl.enable(gl.CULL_FACE);
+  // gl.enable(gl.CULL_FACE);  
   gl.enable(gl.DEPTH_TEST);
 
   var program = createProgramFromScripts(gl, ["3d-vertex-shader", "3d-fragment-shader"]);
@@ -114,8 +114,15 @@ function main()
   var scale = [1, 1, 1];
   var cameraAngleRadians = degToRad(0);
   var fieldOfViewRadians = degToRad(60);
-  var strikermovX = 0,strikermovY = 0;
+  var strikermovX = 0,strikermovY = 292;
   var mouseX = 0,mouseY = 0;
+  var finalX = 0,finalY = 0;
+  var finalstrikerX = 0,finalstrikerY = 0;
+  var strikervelocity = 0;
+  var setstriker = 1;
+  var setdirection = 0;
+  var setstrikermove = 0;
+
   //drawScene();
   
   setInterval(drawScene, 10);
@@ -178,17 +185,62 @@ function main()
 
 
   addEventListener('keydown', function (event) {
-    if(event.keyCode==39)
+    if(setdirection==1)
     {
-      strikermov +=1;
+      if(event.keyCode==39)
+      {
+        strikermov +=1;
+      }
     }
   }); 
 
+if(setstriker==1 || setdirection==1)
+{
 addEventListener('mousemove', function(event) {
   mouseY = event.clientY;
   mouseX = event.clientX;
-  document.getElementById('myDiv').innerHTML = mouseX;
+  // document.getElementById('myDiv').innerHTML = mouseX;
 });
+}
+
+
+addEventListener('click', function(event) {
+  if(setdirection==1)
+  {
+    setstriker = 0;
+    setdirection = 0;
+    finalY = 600 - mouseY;
+    finalX = mouseX;
+    strikervelocity = Math.sqrt(((finalX - finalstrikerX)*(finalX - finalstrikerX)) + ((finalY - finalstrikerY)*(finalY - finalstrikerY)));
+    strikervelocity -= 190;
+    strikervelocity = strikervelocity/10;
+    setstrikermove = 1;
+  }
+  if(setstriker==1)
+  {
+  setstriker = 0;
+  finalstrikerX = strikermovX-100;
+  finalstrikerY = 0;
+  setdirection = 1;
+  }
+
+  // document.getElementById('myDiv').innerHTML = mouseX;
+});
+
+
+// if(setdirection==1)
+// {
+// addEventListener('click', function(event) {
+//   if(setdirection==1)
+//   {
+//     setstriker = 0;
+//     setdirection = 0;
+//     finalY = mouseY;
+//     finalX = mouseX;
+//     strikervelocity = Math.sqrt((finalX - finalstrikerX)*(finalX - finalstrikerX) + (finalY - finalstrikerY)*(finalY - finalstrikerY));
+//   }
+//   // document.getElementById('myDiv').innerHTML = strikervelocity;
+// });
 
   /*
   drawScene();
@@ -232,6 +284,10 @@ addEventListener('mousemove', function(event) {
 
     // Clear the canvas AND the depth buffer.
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+    document.getElementById('myDiv').innerHTML = " " + strikervelocity + "   " + finalX + "   " + finalY + "   " + finalstrikerX + "   " + finalstrikerY;
+    // console.log('setstriker');
+    // console.log(setstriker);
 
     // Compute the projection matrix
     var aspect = canvas.clientWidth / canvas.clientHeight;
@@ -350,16 +406,23 @@ addEventListener('mousemove', function(event) {
     drawObject(matrix,vpmatrix,holes,coinblack,216,1);
 
     if(setstriker==1)
+    {
     if(mouseX>200 && mouseX<590)
-      strikermovX = (mouseX - 400)/2.2
+      strikermovX = ((mouseX - 400)/2.2) +305;
     else if(mouseX<200)
-      strikermovX = -200/2.2;
+      strikermovX = (-200/2.2) + 305;
     else if(mouseX>190)
-      strikermovX = 190/2.2;
+      strikermovX = (190/2.2) + 305;
+    }
+
+    if(setstrikermove==1)
+    {
+
+    }
 
 ////  striker
     var striker = cylinder(9,3,18);
-    matrix = computematrix([40,292,305+strikermov],rotation,scale);
+    matrix = computematrix([40,strikermovY,strikermovX],rotation,scale);
     drawObject(matrix,vpmatrix,striker,coinblack,216,1);
 
 ///// coins
@@ -535,154 +598,154 @@ function matrixVectorMultiply(v, m) {
 };
 
 // Fill the buffer with the values that define a letter 'F'.
-function setGeometry(gl) {
-  var positions = new Float32Array([
-          // left column front
-          0,   0,  0,
-          0, 150,  0,
-          30,   0,  0,
-          0, 150,  0,
-          30, 150,  0,
-          30,   0,  0,
+// function setGeometry(gl) {
+//   var positions = new Float32Array([
+//           // left column front
+//           0,   0,  0,
+//           0, 150,  0,
+//           30,   0,  0,
+//           0, 150,  0,
+//           30, 150,  0,
+//           30,   0,  0,
 
-          // top rung front
-          30,   0,  0,
-          30,  30,  0,
-          100,   0,  0,
-          30,  30,  0,
-          100,  30,  0,
-          100,   0,  0,
+//           // top rung front
+//           30,   0,  0,
+//           30,  30,  0,
+//           100,   0,  0,
+//           30,  30,  0,
+//           100,  30,  0,
+//           100,   0,  0,
 
-          // middle rung front
-          30,  60,  0,
-          30,  90,  0,
-          67,  60,  0,
-          30,  90,  0,
-          67,  90,  0,
-          67,  60,  0,
+//           // middle rung front
+//           30,  60,  0,
+//           30,  90,  0,
+//           67,  60,  0,
+//           30,  90,  0,
+//           67,  90,  0,
+//           67,  60,  0,
 
-          // left column back
-            0,   0,  30,
-           30,   0,  30,
-            0, 150,  30,
-            0, 150,  30,
-           30,   0,  30,
-           30, 150,  30,
+//           // left column back
+//             0,   0,  30,
+//            30,   0,  30,
+//             0, 150,  30,
+//             0, 150,  30,
+//            30,   0,  30,
+//            30, 150,  30,
 
-          // top rung back
-           30,   0,  30,
-          100,   0,  30,
-           30,  30,  30,
-           30,  30,  30,
-          100,   0,  30,
-          100,  30,  30,
+//           // top rung back
+//            30,   0,  30,
+//           100,   0,  30,
+//            30,  30,  30,
+//            30,  30,  30,
+//           100,   0,  30,
+//           100,  30,  30,
 
-          // middle rung back
-           30,  60,  30,
-           67,  60,  30,
-           30,  90,  30,
-           30,  90,  30,
-           67,  60,  30,
-           67,  90,  30,
+//           // middle rung back
+//            30,  60,  30,
+//            67,  60,  30,
+//            30,  90,  30,
+//            30,  90,  30,
+//            67,  60,  30,
+//            67,  90,  30,
 
-          // top
-            0,   0,   0,
-          100,   0,   0,
-          100,   0,  30,
-            0,   0,   0,
-          100,   0,  30,
-            0,   0,  30,
+//           // top
+//             0,   0,   0,
+//           100,   0,   0,
+//           100,   0,  30,
+//             0,   0,   0,
+//           100,   0,  30,
+//             0,   0,  30,
 
-          // top rung right
-          100,   0,   0,
-          100,  30,   0,
-          100,  30,  30,
-          100,   0,   0,
-          100,  30,  30,
-          100,   0,  30,
+//           // top rung right
+//           100,   0,   0,
+//           100,  30,   0,
+//           100,  30,  30,
+//           100,   0,   0,
+//           100,  30,  30,
+//           100,   0,  30,
 
-          // under top rung
-          30,   30,   0,
-          30,   30,  30,
-          100,  30,  30,
-          30,   30,   0,
-          100,  30,  30,
-          100,  30,   0,
+//           // under top rung
+//           30,   30,   0,
+//           30,   30,  30,
+//           100,  30,  30,
+//           30,   30,   0,
+//           100,  30,  30,
+//           100,  30,   0,
 
-          // between top rung and middle
-          30,   30,   0,
-          30,   60,  30,
-          30,   30,  30,
-          30,   30,   0,
-          30,   60,   0,
-          30,   60,  30,
+//           // between top rung and middle
+//           30,   30,   0,
+//           30,   60,  30,
+//           30,   30,  30,
+//           30,   30,   0,
+//           30,   60,   0,
+//           30,   60,  30,
 
-          // top of middle rung
-          30,   60,   0,
-          67,   60,  30,
-          30,   60,  30,
-          30,   60,   0,
-          67,   60,   0,
-          67,   60,  30,
+//           // top of middle rung
+//           30,   60,   0,
+//           67,   60,  30,
+//           30,   60,  30,
+//           30,   60,   0,
+//           67,   60,   0,
+//           67,   60,  30,
 
-          // right of middle rung
-          67,   60,   0,
-          67,   90,  30,
-          67,   60,  30,
-          67,   60,   0,
-          67,   90,   0,
-          67,   90,  30,
+//           // right of middle rung
+//           67,   60,   0,
+//           67,   90,  30,
+//           67,   60,  30,
+//           67,   60,   0,
+//           67,   90,   0,
+//           67,   90,  30,
 
-          // bottom of middle rung.
-          30,   90,   0,
-          30,   90,  30,
-          67,   90,  30,
-          30,   90,   0,
-          67,   90,  30,
-          67,   90,   0,
+//           // bottom of middle rung.
+//           30,   90,   0,
+//           30,   90,  30,
+//           67,   90,  30,
+//           30,   90,   0,
+//           67,   90,  30,
+//           67,   90,   0,
 
-          // right of bottom
-          30,   90,   0,
-          30,  150,  30,
-          30,   90,  30,
-          30,   90,   0,
-          30,  150,   0,
-          30,  150,  30,
+//           // right of bottom
+//           30,   90,   0,
+//           30,  150,  30,
+//           30,   90,  30,
+//           30,   90,   0,
+//           30,  150,   0,
+//           30,  150,  30,
 
-          // bottom
-          0,   150,   0,
-          0,   150,  30,
-          30,  150,  30,
-          0,   150,   0,
-          30,  150,  30,
-          30,  150,   0,
+//           // bottom
+//           0,   150,   0,
+//           0,   150,  30,
+//           30,  150,  30,
+//           0,   150,   0,
+//           30,  150,  30,
+//           30,  150,   0,
 
-          // left side
-          0,   0,   0,
-          0,   0,  30,
-          0, 150,  30,
-          0,   0,   0,
-          0, 150,  30,
-          0, 150,   0]);
+//           // left side
+//           0,   0,   0,
+//           0,   0,  30,
+//           0, 150,  30,
+//           0,   0,   0,
+//           0, 150,  30,
+//           0, 150,   0]);
 
-  // Center the F around the origin and Flip it around. We do this because
-  // we're in 3D now with and +Y is up where as before when we started with 2D
-  // we had +Y as down.
+//   // Center the F around the origin and Flip it around. We do this because
+//   // we're in 3D now with and +Y is up where as before when we started with 2D
+//   // we had +Y as down.
 
-  // We could do by changing all the values above but I'm lazy.
-  // We could also do it with a matrix at draw time but you should
-  // never do stuff at draw time if you can do it at init time.
-  var matrix = makeTranslation(-50, -75, -15);
-  matrix = matrixMultiply(matrix, makeXRotation(Math.PI));
+//   // We could do by changing all the values above but I'm lazy.
+//   // We could also do it with a matrix at draw time but you should
+//   // never do stuff at draw time if you can do it at init time.
+//   var matrix = makeTranslation(-50, -75, -15);
+//   matrix = matrixMultiply(matrix, makeXRotation(Math.PI));
 
-  for (var ii = 0; ii < positions.length; ii += 3) {
-    var vector = matrixVectorMultiply([positions[ii + 0], positions[ii + 1], positions[ii + 2], 1], matrix);
-    positions[ii + 0] = vector[0];
-    positions[ii + 1] = vector[1];
-    positions[ii + 2] = vector[2];
-  }
-  return positions;
-}
+//   for (var ii = 0; ii < positions.length; ii += 3) {
+//     var vector = matrixVectorMultiply([positions[ii + 0], positions[ii + 1], positions[ii + 2], 1], matrix);
+//     positions[ii + 0] = vector[0];
+//     positions[ii + 1] = vector[1];
+//     positions[ii + 2] = vector[2];
+//   }
+//   return positions;
+// }
 
 function cylinder(R,H,n)
 {

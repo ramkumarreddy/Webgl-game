@@ -122,7 +122,7 @@ function main()
   var setstriker = 1;
   var setdirection = 0;
   var setstrikermove = 0;
-  var strikerangle = 170;
+  var strikerangle = 45;
   var strikervelocityX = 0,strikervelocityY = 0;
   var tempX=0,tempY=0;
   var movementX=0,movementY=0;
@@ -137,7 +137,8 @@ function main()
   var coin8 = makestruct(coin5,399,278,0,0);
   var coin9 = makestruct(coin5,399,322,0,0);
   var strikerdict = makestruct(strikerdict,292,0,0,0);
-
+  var player1=1,player2=0;
+  var elapsedtime = 0;
 
   //drawScene();
   
@@ -378,16 +379,29 @@ addEventListener('click', function(event) {
       strikerdict.Xpos = (-200/2.2) + 305;
     else if(mouseX>190)
       strikerdict.Xpos = (190/2.2) + 305;
+    if(player1==1)
+      strikerdict.Ypos=292;
+    else
+      strikerdict.Ypos=492;
     }
 
     if(setstrikermove==1)
     {
-        strikerdict.Xvel = strikerdict.Xvel*0.95;
-        strikerdict.Yvel = strikerdict.Yvel*0.95;
-        strikerdict.Xpos += strikerdict.Xvel*1.5;
-        strikerdict.Ypos += strikerdict.Yvel*1.5;
-        // tempX = final_velocityX;
-        // tempY = strikerdict.Yvel;
+        normalmove(strikerdict);
+        normalmove(coin1);
+        normalmove(coin2);
+        normalmove(coin3);
+        normalmove(coin4);
+        normalmove(coin5);
+        normalmove(coin6);
+        normalmove(coin7);
+        normalmove(coin8);
+        normalmove(coin9);
+        elapsedtime +=10;
+        // strikerdict.Xvel *= 0.95;
+        // strikerdict.Yvel *= 0.95;
+        // strikerdict.Xpos += strikerdict.Xvel*1.5;
+        // strikerdict.Ypos += strikerdict.Yvel*1.5;
     }
 
     // var temptuple = checkmove(strikerdict.Xpos,strikerdict.Ypos,strikerdict.Xvel,strikerdict.Yvel)
@@ -397,11 +411,15 @@ addEventListener('click', function(event) {
     checkmove(coin3);
     checkmove(coin4);
     checkmove(coin5);
+    checkmove(coin6);
+    checkmove(coin7);
+    checkmove(coin8);
+    checkmove(coin9);
     // strikerdict.Xpos = temptuple[0];
     // strikerdict.Ypos = temptuple[1];
     // strikerdict.Xvel = temptuple[2];
     // strikerdict.Yvel = temptuple[3];
-
+    // console.log(elapsedtime);  
 ////  striker
     var striker = cylinder(9,3,18);
     var whitecoin = whitecoincolor(194,125,47);
@@ -413,10 +431,59 @@ addEventListener('click', function(event) {
     // console.log(strikerdict);  
   
     // var distance1 = Math.sqrt(Math.pow((coin1.Xpos- strikerdict.Xpos),2) + Math.pow((coin1.Ypos- strikerdict.Ypos),2));
-    // if(distance1<16)
+    // if(distance1<16.0)
     // {
-      
+    //   conserve_momentum(strikerdict,coin1);
+    //   // console.log('Hio');
     // }
+
+    checkcollision(strikerdict,coin1,16.0);
+    checkcollision(strikerdict,coin2,16.0);
+    checkcollision(strikerdict,coin3,16.0);
+    checkcollision(strikerdict,coin4,16.0);
+    checkcollision(strikerdict,coin5,16.0);
+    checkcollision(strikerdict,coin6,16.0);
+    checkcollision(strikerdict,coin7,16.0);
+    checkcollision(strikerdict,coin8,16.0);
+    checkcollision(strikerdict,coin9,16.0);
+    checkcollision(coin1,coin2,14.0);
+    checkcollision(coin1,coin3,14.0);
+    checkcollision(coin1,coin4,14.0);
+    checkcollision(coin1,coin5,14.0);
+    checkcollision(coin1,coin6,14.0);
+    checkcollision(coin1,coin7,14.0);
+    checkcollision(coin1,coin8,14.0);
+    checkcollision(coin1,coin9,14.0);
+    checkcollision(coin2,coin3,14.0);
+    checkcollision(coin2,coin4,14.0);
+    checkcollision(coin2,coin5,14.0);
+    checkcollision(coin2,coin6,14.0);
+    checkcollision(coin2,coin7,14.0);
+    checkcollision(coin2,coin8,14.0);
+    checkcollision(coin2,coin9,14.0);
+    checkcollision(coin3,coin4,14.0);
+    checkcollision(coin3,coin5,14.0);
+    checkcollision(coin3,coin6,14.0);
+    checkcollision(coin3,coin7,14.0);
+    checkcollision(coin3,coin8,14.0);
+    checkcollision(coin3,coin9,14.0);
+    checkcollision(coin4,coin5,14.0);
+    checkcollision(coin4,coin6,14.0);
+    checkcollision(coin4,coin7,14.0);
+    checkcollision(coin4,coin8,14.0);
+    checkcollision(coin4,coin9,14.0);
+    checkcollision(coin5,coin6,14.0);
+    checkcollision(coin5,coin7,14.0);
+    checkcollision(coin5,coin8,14.0);
+    checkcollision(coin5,coin9,14.0);
+    checkcollision(coin6,coin7,14.0);
+    checkcollision(coin6,coin8,14.0);
+    checkcollision(coin6,coin9,14.0);
+    checkcollision(coin7,coin8,14.0);
+    checkcollision(coin7,coin9,14.0);
+    checkcollision(coin8,coin9,14.0);
+
+    // console.log(distance1);
 
     var coin = cylinder(7,3,18);
     matrix = computematrix([40,coin1.Ypos,coin1.Xpos],rotation,scale);
@@ -448,6 +515,30 @@ addEventListener('click', function(event) {
 
     y = y+1;
     // console.log(mouseX);
+    if(elapsedtime>1000)
+    { 
+      elapsedtime = 0;
+      // setstriker=1;
+
+    }
+
+  }
+
+  function checkcollision(obj1,obj2,x)
+  {
+    var distance = Math.sqrt(Math.pow((obj2.Xpos- obj1.Xpos),2) + Math.pow((obj2.Ypos- obj1.Ypos),2));
+    if(distance<x)
+    {
+      conserve_momentum(obj1,obj2,x);
+    }
+  }
+
+  function normalmove(name)
+  {
+    name.Xvel *= 0.95;
+    name.Yvel *= 0.95;
+    name.Xpos += name.Xvel*1.5;
+    name.Ypos += name.Yvel*1.5;
 
   }
 
@@ -475,7 +566,7 @@ addEventListener('click', function(event) {
     }
   }
 
-  function conserve_momentum(obj1,obj2)
+  function conserve_momentum(obj1,obj2,x)
   {
     var x1=obj1.Xpos,y1=obj1.Ypos;
     var x2=obj2.Xpos,y2=obj2.Ypos;
@@ -486,7 +577,16 @@ addEventListener('click', function(event) {
     var speed2 = Math.sqrt(vx2*vx2+vy2*vy2);
     var direction_1 = Math.atan2(y1,x1);
     var direction_2 = Math.atan2(y2,x2);
-    var m1=1,m2=1;
+    if(x==16.0)
+    {
+      var m1=2,m2=1;
+      var r1=9,r2=7;
+    }
+    else
+    {
+      var m1=1,m2=1;
+      var r1=7,r2=7;
+    }
 
     var newx1 = speed1 * Math.cos(direction_1 - collisionision_angle);
     var newy1 = speed1 * Math.sin(direction_1 - collisionision_angle);
@@ -503,6 +603,48 @@ addEventListener('click', function(event) {
     obj1.Yvel=sinAngle*finx1 + cosAngle*finy1;
     obj2.Xvel=cosAngle*finx2 - sinAngle*finy2;
     obj2.Yvel=sinAngle*finx2 + cosAngle*finy2;
+
+
+  var posx1=x1,posx2=x2,posy1=y1,posy2=y2;
+  var posDiffx=posx1-posx2,posDiffy=posy1-posy2;
+  var d = Math.sqrt(posDiffx*posDiffx+posDiffy*posDiffy);
+  var mtdx=posDiffx*((r1+r2-d)/d);
+  var mtdy=posDiffy*((r1+r2-d)/d);
+  var im1=1/m1;
+  var im2=1/m2;
+  posx1 += mtdx*(im1/(im1+im2));
+  posx2 += -mtdx*(im2/(im1+im2));
+  posy1 += mtdy*(im1/(im1+im2));
+  posy2 += -mtdy*(im2/(im1+im2));
+
+  obj1.Xpos=posx1;
+  obj1.Ypos=posy1;
+  obj2.Xpos=posx2;
+  obj2.Ypos=posy2;
+
+
+   //  Vector pos1 = new Vector(_ball1.p.X, _ball1.p.Y);
+   // Vector pos2 = new Vector(_ball2.p.X, _ball2.p.Y);
+
+   // // get the mtd
+   // Vector posDiff = pos1 – pos2;
+   // double d = posDiff.Length;
+
+   // // minimum translation distance to push balls apart after intersecting
+   // Vector mtd = posDiff * (((_ball1.r + _ball2.r) – d) / d);
+
+   // // resolve intersection –
+   // // computing inverse mass quantities
+   // double im1 = 1 / _ball1.m;
+   // double im2 = 1 / _ball2.m;
+
+   // // push-pull them apart based off their mass
+   // pos1 = pos1 + mtd * (im1 / (im1 + im2));
+   // pos2 = pos2 – mtd * (im2 / (im1 + im2));
+   // _ball1.p = pos1;
+   // _ball2.p = pos2;
+
+
   }
     // return [x,y,tempX,tempY];
 }

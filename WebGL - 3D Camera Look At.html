@@ -122,66 +122,34 @@ function main()
   var setstriker = 1;
   var setdirection = 0;
   var setstrikermove = 0;
+  var strikerangle = 170;
+  var strikervelocityX = 0,strikervelocityY = 0;
+  var tempX=0,tempY=0;
+  var movementX=0,movementY=0;
+  var final_velocityX = 0,final_velocityY = 0;
+  var coin1 = makestruct(coin1,399,300,0,0);
+  var coin2 = makestruct(coin2,416,316,0,0);
+  var coin3 = makestruct(coin3,385,316,0,0);
+  var coin4 = makestruct(coin4,385,284,0,0);
+  var coin5 = makestruct(coin5,416,284,0,0);
+  var coin6 = makestruct(coin5,422,300,0,0);
+  var coin7 = makestruct(coin5,378,300,0,0);
+  var coin8 = makestruct(coin5,399,278,0,0);
+  var coin9 = makestruct(coin5,399,322,0,0);
+  var strikerdict = makestruct(strikerdict,292,0,0,0);
+
 
   //drawScene();
   
   setInterval(drawScene, 10);
 
-  // addEventListener('keydown', function (event) {
-  //   var dx,dy,rot,mx,my;
-  //   dx=dy=mx=my=0;
-  //   rot=Math.atan2(rotation[0],rotation[1])*180/Math.PI;
-  //   var crot = radToDeg(cameraAngleRadians);
-  //   if (event.keyCode == 87)
-  //   {
-  //     dy=-5.0;
-  //   }
-  //   else if(event.keyCode == 83)
-  //   {
-  //     dy+=5.0;
-  //   }
-  //   else if (event.keyCode == 65)
-  //   {
-  //     dx-=5.0;
-  //   }
-  //   else if(event.keyCode == 68)
-  //   {
-  //     dx+=5.0;
-  //   }
-  //   // else if (event.keyCode == 37)
-  //   // {
-  //   //   rot-=5.0;
-  //   // }
-  //   // else if(event.keyCode == 39)
-  //   // {
-  //   //   rot+=5.0;
-  //   // }
-  //   // else if (event.keyCode == 38)
-  //   // {
-  //   //   mx-=0.2;
-  //   // }
-  //   // else if(event.keyCode == 40)
-  //   // {
-  //   //   mx+=0.2;
-  //   // }
-  //   else if(event.keyCode == 66)
-  //   {
-  //     crot+=5;
-  //   }
-  //   else
-  //   {
-  //     return;
-  //   }
-  //   //alert(crot);
-  //   translation[0]+=dx;
-  //   translation[1]+=dy;
-  //   rotation[0]=Math.sin(rot * Math.PI / 180);
-  //   rotation[1]=Math.cos(rot * Math.PI / 180);
-  //   scale[0]+=mx;
-  //   cameraAngleRadians=degToRad(crot);
+  
 
-  //   //drawScene();
-  // });
+  function makestruct(name,y,x,vx,vy) {
+    name = { 'Xpos':x,'Ypos':y,'Xvel':vx,'Yvel':vy};
+    return name;
+  }
+
 
 
   addEventListener('keydown', function (event) {
@@ -189,7 +157,11 @@ function main()
     {
       if(event.keyCode==39)
       {
-        strikermov +=1;
+        strikerangle += 1;
+      }
+      else if(event.keyCode==37)
+      {
+        strikerangle -= 1;
       }
     }
   }); 
@@ -199,7 +171,6 @@ if(setstriker==1 || setdirection==1)
 addEventListener('mousemove', function(event) {
   mouseY = event.clientY;
   mouseX = event.clientX;
-  // document.getElementById('myDiv').innerHTML = mouseX;
 });
 }
 
@@ -214,33 +185,25 @@ addEventListener('click', function(event) {
     strikervelocity = Math.sqrt(((finalX - finalstrikerX)*(finalX - finalstrikerX)) + ((finalY - finalstrikerY)*(finalY - finalstrikerY)));
     strikervelocity -= 190;
     strikervelocity = strikervelocity/10;
+    strikervelocityX = strikervelocity*Math.cos((strikerangle * Math.PI)/180);
+    strikervelocityY = strikervelocity*Math.sin((strikerangle * Math.PI)/180);
+    movementX=0;
+    movementY=0;
+    strikerdict.Xvel = strikervelocityX;
+    strikerdict.Yvel = strikervelocityY;
     setstrikermove = 1;
   }
   if(setstriker==1)
   {
   setstriker = 0;
-  finalstrikerX = strikermovX-100;
+  finalstrikerX = strikerdict.Xpos-100;
   finalstrikerY = 0;
   setdirection = 1;
-  }
+  } 
 
   // document.getElementById('myDiv').innerHTML = mouseX;
 });
 
-
-// if(setdirection==1)
-// {
-// addEventListener('click', function(event) {
-//   if(setdirection==1)
-//   {
-//     setstriker = 0;
-//     setdirection = 0;
-//     finalY = mouseY;
-//     finalX = mouseX;
-//     strikervelocity = Math.sqrt((finalX - finalstrikerX)*(finalX - finalstrikerX) + (finalY - finalstrikerY)*(finalY - finalstrikerY));
-//   }
-//   // document.getElementById('myDiv').innerHTML = strikervelocity;
-// });
 
   /*
   drawScene();
@@ -285,7 +248,9 @@ addEventListener('click', function(event) {
     // Clear the canvas AND the depth buffer.
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    document.getElementById('myDiv').innerHTML = " " + strikervelocity + "   " + finalX + "   " + finalY + "   " + finalstrikerX + "   " + finalstrikerY;
+    // document.getElementById('myDiv').innerHTML = "strikervelocityX" + " "  + strikervelocityX + "\n" + "strikervelocityY" + " "  + strikervelocityY + "\n" + finalX + "   " + finalY + "   " + finalstrikerX + "   " + finalstrikerY + " " + movementX + " " + movementY + " " + strikerangle + " " + final_velocityX + " " + strikerdict.Yvel;
+    document.getElementById('myDiv').innerHTML = strikerangle;
+
     // console.log('setstriker');
     // console.log(setstriker);
 
@@ -408,33 +373,144 @@ addEventListener('click', function(event) {
     if(setstriker==1)
     {
     if(mouseX>200 && mouseX<590)
-      strikermovX = ((mouseX - 400)/2.2) +305;
+      strikerdict.Xpos = ((mouseX - 400)/2.2) +305;
     else if(mouseX<200)
-      strikermovX = (-200/2.2) + 305;
+      strikerdict.Xpos = (-200/2.2) + 305;
     else if(mouseX>190)
-      strikermovX = (190/2.2) + 305;
+      strikerdict.Xpos = (190/2.2) + 305;
     }
 
     if(setstrikermove==1)
     {
-
+        strikerdict.Xvel = strikerdict.Xvel*0.95;
+        strikerdict.Yvel = strikerdict.Yvel*0.95;
+        strikerdict.Xpos += strikerdict.Xvel*1.5;
+        strikerdict.Ypos += strikerdict.Yvel*1.5;
+        // tempX = final_velocityX;
+        // tempY = strikerdict.Yvel;
     }
+
+    // var temptuple = checkmove(strikerdict.Xpos,strikerdict.Ypos,strikerdict.Xvel,strikerdict.Yvel)
+    checkmove(strikerdict);
+    checkmove(coin1);
+    checkmove(coin2);
+    checkmove(coin3);
+    checkmove(coin4);
+    checkmove(coin5);
+    // strikerdict.Xpos = temptuple[0];
+    // strikerdict.Ypos = temptuple[1];
+    // strikerdict.Xvel = temptuple[2];
+    // strikerdict.Yvel = temptuple[3];
 
 ////  striker
     var striker = cylinder(9,3,18);
-    matrix = computematrix([40,strikermovY,strikermovX],rotation,scale);
+    var whitecoin = whitecoincolor(194,125,47);
+    var redcoin = whitecoincolor(234,0,0);
+    matrix = computematrix([40,strikerdict.Ypos,strikerdict.Xpos],rotation,scale);
     drawObject(matrix,vpmatrix,striker,coinblack,216,1);
 
 ///// coins
+    // console.log(strikerdict);  
+  
+    // var distance1 = Math.sqrt(Math.pow((coin1.Xpos- strikerdict.Xpos),2) + Math.pow((coin1.Ypos- strikerdict.Ypos),2));
+    // if(distance1<16)
+    // {
+      
+    // }
+
     var coin = cylinder(7,3,18);
-    matrix = computematrix([40,392,350],rotation,scale);
+    matrix = computematrix([40,coin1.Ypos,coin1.Xpos],rotation,scale);
+    drawObject(matrix,vpmatrix,coin,redcoin,216,1);
+
+    matrix = computematrix([40,coin2.Ypos,coin2.Xpos],rotation,scale);
     drawObject(matrix,vpmatrix,coin,coinblack,216,1);
+
+    matrix = computematrix([40,coin3.Ypos,coin3.Xpos],rotation,scale);
+    drawObject(matrix,vpmatrix,coin,coinblack,216,1);
+
+    matrix = computematrix([40,coin4.Ypos,coin4.Xpos],rotation,scale);
+    drawObject(matrix,vpmatrix,coin,coinblack,216,1);
+
+    matrix = computematrix([40,coin5.Ypos,coin5.Xpos],rotation,scale);
+    drawObject(matrix,vpmatrix,coin,coinblack,216,1);
+
+    matrix = computematrix([40,coin6.Ypos,coin6.Xpos],rotation,scale);
+    drawObject(matrix,vpmatrix,coin,whitecoin,216,1);
+
+    matrix = computematrix([40,coin7.Ypos,coin7.Xpos],rotation,scale);
+    drawObject(matrix,vpmatrix,coin,whitecoin,216,1);
+
+    matrix = computematrix([40,coin8.Ypos,coin8.Xpos],rotation,scale);
+    drawObject(matrix,vpmatrix,coin,whitecoin,216,1);
+
+    matrix = computematrix([40,coin9.Ypos,coin9.Xpos],rotation,scale);
+    drawObject(matrix,vpmatrix,coin,whitecoin,216,1);
 
     y = y+1;
     // console.log(mouseX);
 
   }
+
+  function checkmove(name)
+  {
+    if(name.Ypos>530)
+    {
+      name.Yvel *= -1;
+      name.Ypos=529;
+    }
+    if(name.Ypos<270)
+    {
+      name.Yvel *= -1;
+      name.Ypos=271;
+    }
+    if(name.Xpos<176)
+    {
+      name.Xvel *= -1;
+      name.Xpos=177;
+    }
+    if(name.Xpos>417)
+    {
+      name.Xvel *= -1;
+      name.Xpos=416;
+    }
+  }
+
+  function conserve_momentum(obj1,obj2)
+  {
+    var x1=obj1.Xpos,y1=obj1.Ypos;
+    var x2=obj2.Xpos,y2=obj2.Ypos;
+    var collisionision_angle = Math.atan2(y1-y2,x1-x2);
+    var vx1= obj1.Xvel,vy1=obj1.Yvel;
+    var vx2=obj2.Xvel,vy2=obj2.Yvel;
+    var speed1 = Math.sqrt(vx1*vx1+vy1*vy1);
+    var speed2 = Math.sqrt(vx2*vx2+vy2*vy2);
+    var direction_1 = Math.atan2(y1,x1);
+    var direction_2 = Math.atan2(y2,x2);
+    var m1=1,m2=1;
+
+    var newx1 = speed1 * Math.cos(direction_1 - collisionision_angle);
+    var newy1 = speed1 * Math.sin(direction_1 - collisionision_angle);
+    var newx2 = speed2 * Math.cos(direction_2 - collisionision_angle);
+    var newy2 = speed2 * Math.sin(direction_2 - collisionision_angle);
+
+    var finx1 = ((m1-m2)*newx1 + (m2+m2)*newx2)/(m1+m2);
+    var finx2 = ((m1+m1)*newx1 + (m2-m1)*newx2)/(m1+m2);
+    var finy1 = newy1;
+    var finy2 = newy2;
+    var cosAngle = Math.cos(collisionision_angle);
+    var sinAngle = Math.sin(collisionision_angle);
+    obj1.Xvel=cosAngle*finx1 - sinAngle*finy1;
+    obj1.Yvel=sinAngle*finx1 + cosAngle*finy1;
+    obj2.Xvel=cosAngle*finx2 - sinAngle*finy2;
+    obj2.Yvel=sinAngle*finx2 + cosAngle*finy2;
+  }
+    // return [x,y,tempX,tempY];
 }
+
+
+
+
+
 
 function makeLookAt(cameraPosition, target, up) {
   var zAxis = normalize(
@@ -598,154 +674,7 @@ function matrixVectorMultiply(v, m) {
 };
 
 // Fill the buffer with the values that define a letter 'F'.
-// function setGeometry(gl) {
-//   var positions = new Float32Array([
-//           // left column front
-//           0,   0,  0,
-//           0, 150,  0,
-//           30,   0,  0,
-//           0, 150,  0,
-//           30, 150,  0,
-//           30,   0,  0,
 
-//           // top rung front
-//           30,   0,  0,
-//           30,  30,  0,
-//           100,   0,  0,
-//           30,  30,  0,
-//           100,  30,  0,
-//           100,   0,  0,
-
-//           // middle rung front
-//           30,  60,  0,
-//           30,  90,  0,
-//           67,  60,  0,
-//           30,  90,  0,
-//           67,  90,  0,
-//           67,  60,  0,
-
-//           // left column back
-//             0,   0,  30,
-//            30,   0,  30,
-//             0, 150,  30,
-//             0, 150,  30,
-//            30,   0,  30,
-//            30, 150,  30,
-
-//           // top rung back
-//            30,   0,  30,
-//           100,   0,  30,
-//            30,  30,  30,
-//            30,  30,  30,
-//           100,   0,  30,
-//           100,  30,  30,
-
-//           // middle rung back
-//            30,  60,  30,
-//            67,  60,  30,
-//            30,  90,  30,
-//            30,  90,  30,
-//            67,  60,  30,
-//            67,  90,  30,
-
-//           // top
-//             0,   0,   0,
-//           100,   0,   0,
-//           100,   0,  30,
-//             0,   0,   0,
-//           100,   0,  30,
-//             0,   0,  30,
-
-//           // top rung right
-//           100,   0,   0,
-//           100,  30,   0,
-//           100,  30,  30,
-//           100,   0,   0,
-//           100,  30,  30,
-//           100,   0,  30,
-
-//           // under top rung
-//           30,   30,   0,
-//           30,   30,  30,
-//           100,  30,  30,
-//           30,   30,   0,
-//           100,  30,  30,
-//           100,  30,   0,
-
-//           // between top rung and middle
-//           30,   30,   0,
-//           30,   60,  30,
-//           30,   30,  30,
-//           30,   30,   0,
-//           30,   60,   0,
-//           30,   60,  30,
-
-//           // top of middle rung
-//           30,   60,   0,
-//           67,   60,  30,
-//           30,   60,  30,
-//           30,   60,   0,
-//           67,   60,   0,
-//           67,   60,  30,
-
-//           // right of middle rung
-//           67,   60,   0,
-//           67,   90,  30,
-//           67,   60,  30,
-//           67,   60,   0,
-//           67,   90,   0,
-//           67,   90,  30,
-
-//           // bottom of middle rung.
-//           30,   90,   0,
-//           30,   90,  30,
-//           67,   90,  30,
-//           30,   90,   0,
-//           67,   90,  30,
-//           67,   90,   0,
-
-//           // right of bottom
-//           30,   90,   0,
-//           30,  150,  30,
-//           30,   90,  30,
-//           30,   90,   0,
-//           30,  150,   0,
-//           30,  150,  30,
-
-//           // bottom
-//           0,   150,   0,
-//           0,   150,  30,
-//           30,  150,  30,
-//           0,   150,   0,
-//           30,  150,  30,
-//           30,  150,   0,
-
-//           // left side
-//           0,   0,   0,
-//           0,   0,  30,
-//           0, 150,  30,
-//           0,   0,   0,
-//           0, 150,  30,
-//           0, 150,   0]);
-
-//   // Center the F around the origin and Flip it around. We do this because
-//   // we're in 3D now with and +Y is up where as before when we started with 2D
-//   // we had +Y as down.
-
-//   // We could do by changing all the values above but I'm lazy.
-//   // We could also do it with a matrix at draw time but you should
-//   // never do stuff at draw time if you can do it at init time.
-//   var matrix = makeTranslation(-50, -75, -15);
-//   matrix = matrixMultiply(matrix, makeXRotation(Math.PI));
-
-//   for (var ii = 0; ii < positions.length; ii += 3) {
-//     var vector = matrixVectorMultiply([positions[ii + 0], positions[ii + 1], positions[ii + 2], 1], matrix);
-//     positions[ii + 0] = vector[0];
-//     positions[ii + 1] = vector[1];
-//     positions[ii + 2] = vector[2];
-//   }
-//   return positions;
-// }
 
 function cylinder(R,H,n)
 {
@@ -953,6 +882,18 @@ function cylinderblack()
       Color[3*i]=0;
       Color[3*i+1]=0;
       Color[3*i+2]=0;
+  }
+  return Color;
+}
+
+function whitecoincolor(x,y,z)
+{
+  var Color = new Uint8Array(648);
+  for(var i=0;i<648/3;i++)
+  {
+      Color[3*i]=x;
+      Color[3*i+1]=y;
+      Color[3*i+2]=z;
   }
   return Color;
 }

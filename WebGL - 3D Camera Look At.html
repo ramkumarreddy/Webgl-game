@@ -382,7 +382,7 @@ addEventListener('click', function(event) {
     if(player1==1)
       strikerdict.Ypos=292;
     else
-      strikerdict.Ypos=492;
+      strikerdict.Ypos=508;
     }
 
     if(setstrikermove==1)
@@ -446,6 +446,7 @@ addEventListener('click', function(event) {
     checkcollision(strikerdict,coin7,16.0);
     checkcollision(strikerdict,coin8,16.0);
     checkcollision(strikerdict,coin9,16.0);
+
     checkcollision(coin1,coin2,14.0);
     checkcollision(coin1,coin3,14.0);
     checkcollision(coin1,coin4,14.0);
@@ -454,6 +455,7 @@ addEventListener('click', function(event) {
     checkcollision(coin1,coin7,14.0);
     checkcollision(coin1,coin8,14.0);
     checkcollision(coin1,coin9,14.0);
+
     checkcollision(coin2,coin3,14.0);
     checkcollision(coin2,coin4,14.0);
     checkcollision(coin2,coin5,14.0);
@@ -461,26 +463,32 @@ addEventListener('click', function(event) {
     checkcollision(coin2,coin7,14.0);
     checkcollision(coin2,coin8,14.0);
     checkcollision(coin2,coin9,14.0);
+
     checkcollision(coin3,coin4,14.0);
     checkcollision(coin3,coin5,14.0);
     checkcollision(coin3,coin6,14.0);
     checkcollision(coin3,coin7,14.0);
     checkcollision(coin3,coin8,14.0);
     checkcollision(coin3,coin9,14.0);
+
     checkcollision(coin4,coin5,14.0);
     checkcollision(coin4,coin6,14.0);
     checkcollision(coin4,coin7,14.0);
     checkcollision(coin4,coin8,14.0);
     checkcollision(coin4,coin9,14.0);
+
     checkcollision(coin5,coin6,14.0);
     checkcollision(coin5,coin7,14.0);
     checkcollision(coin5,coin8,14.0);
     checkcollision(coin5,coin9,14.0);
+
     checkcollision(coin6,coin7,14.0);
     checkcollision(coin6,coin8,14.0);
     checkcollision(coin6,coin9,14.0);
+
     checkcollision(coin7,coin8,14.0);
     checkcollision(coin7,coin9,14.0);
+
     checkcollision(coin8,coin9,14.0);
 
     // console.log(distance1);
@@ -518,7 +526,19 @@ addEventListener('click', function(event) {
     if(elapsedtime>1000)
     { 
       elapsedtime = 0;
-      // setstriker=1;
+      setstriker=1;
+      setdirection=0;
+      setstrikermove=0;
+      if(player1==1)
+      {
+        player1=0;
+        player2=1;
+      }
+      else
+      {
+        player1=1;
+        player2=0;
+      }
 
     }
 
@@ -605,53 +625,25 @@ addEventListener('click', function(event) {
     obj2.Yvel=sinAngle*finx2 + cosAngle*finy2;
 
 
-  var posx1=x1,posx2=x2,posy1=y1,posy2=y2;
-  var posDiffx=posx1-posx2,posDiffy=posy1-posy2;
-  var d = Math.sqrt(posDiffx*posDiffx+posDiffy*posDiffy);
-  var mtdx=posDiffx*((r1+r2-d)/d);
-  var mtdy=posDiffy*((r1+r2-d)/d);
-  var im1=1/m1;
-  var im2=1/m2;
-  posx1 += mtdx*(im1/(im1+im2));
-  posx2 += -mtdx*(im2/(im1+im2));
-  posy1 += mtdy*(im1/(im1+im2));
-  posy2 += -mtdy*(im2/(im1+im2));
+    var posx1=x1,posx2=x2,posy1=y1,posy2=y2;
+    var posDiffx=posx1-posx2,posDiffy=posy1-posy2;
+    var d = Math.sqrt(posDiffx*posDiffx+posDiffy*posDiffy);
+    var mtdx=posDiffx*((r1+r2-d)/d);
+    var mtdy=posDiffy*((r1+r2-d)/d);
+    var im1=1/m1;
+    var im2=1/m2;
+    posx1 += mtdx*(im1/(im1+im2));
+    posx2 += -mtdx*(im2/(im1+im2));
+    posy1 += mtdy*(im1/(im1+im2));
+    posy2 += -mtdy*(im2/(im1+im2));
 
-  obj1.Xpos=posx1;
-  obj1.Ypos=posy1;
-  obj2.Xpos=posx2;
-  obj2.Ypos=posy2;
-
-
-   //  Vector pos1 = new Vector(_ball1.p.X, _ball1.p.Y);
-   // Vector pos2 = new Vector(_ball2.p.X, _ball2.p.Y);
-
-   // // get the mtd
-   // Vector posDiff = pos1 – pos2;
-   // double d = posDiff.Length;
-
-   // // minimum translation distance to push balls apart after intersecting
-   // Vector mtd = posDiff * (((_ball1.r + _ball2.r) – d) / d);
-
-   // // resolve intersection –
-   // // computing inverse mass quantities
-   // double im1 = 1 / _ball1.m;
-   // double im2 = 1 / _ball2.m;
-
-   // // push-pull them apart based off their mass
-   // pos1 = pos1 + mtd * (im1 / (im1 + im2));
-   // pos2 = pos2 – mtd * (im2 / (im1 + im2));
-   // _ball1.p = pos1;
-   // _ball2.p = pos2;
-
+    obj1.Xpos=posx1;
+    obj1.Ypos=posy1;
+    obj2.Xpos=posx2;
+    obj2.Ypos=posy2;
 
   }
-    // return [x,y,tempX,tempY];
 }
-
-
-
-
 
 
 function makeLookAt(cameraPosition, target, up) {

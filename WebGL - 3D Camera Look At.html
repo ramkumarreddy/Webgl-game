@@ -139,6 +139,12 @@ function main()
   var strikerdict = makestruct(strikerdict,292,0,0,0);
   var player1=1,player2=0;
   var elapsedtime = 0;
+  var score1=100,score2=100;
+  var offset = 0;
+  var campos=400;
+  var totalelapsedtime=0;
+  var coinview=0;
+  var reddown =0;
 
   //drawScene();
   
@@ -147,23 +153,36 @@ function main()
   
 
   function makestruct(name,y,x,vx,vy) {
-    name = { 'Xpos':x,'Ypos':y,'Xvel':vx,'Yvel':vy};
+    name = { 'Xpos':x,'Ypos':y,'Xvel':vx,'Yvel':vy,'show':1};
     return name;
   }
 
 
 
   addEventListener('keydown', function (event) {
-    if(setdirection==1)
+    if(event.keyCode==39)
     {
-      if(event.keyCode==39)
-      {
-        strikerangle += 1;
-      }
-      else if(event.keyCode==37)
-      {
-        strikerangle -= 1;
-      }
+      strikerangle += 2;
+    }
+    else if(event.keyCode==37)
+    {
+      strikerangle -= 2;
+    }
+    else if(event.keyCode==84)
+    {
+      campos = 400;
+      offset=0;
+      coinview=0;
+    }
+    else if(event.keyCode==80)
+    {
+      campos = -300;
+      offset=-10;
+      coinview=0;
+    }
+    else if(event.keyCode==67)
+    {
+      coinview=1;
     }
   }); 
 
@@ -200,6 +219,10 @@ addEventListener('click', function(event) {
   finalstrikerX = strikerdict.Xpos-100;
   finalstrikerY = 0;
   setdirection = 1;
+  if(player1==1)
+    strikerangle=90;    
+  else
+    strikerangle=270;
   } 
 
   // document.getElementById('myDiv').innerHTML = mouseX;
@@ -252,6 +275,31 @@ addEventListener('click', function(event) {
     // document.getElementById('myDiv').innerHTML = "strikervelocityX" + " "  + strikervelocityX + "\n" + "strikervelocityY" + " "  + strikervelocityY + "\n" + finalX + "   " + finalY + "   " + finalstrikerX + "   " + finalstrikerY + " " + movementX + " " + movementY + " " + strikerangle + " " + final_velocityX + " " + strikerdict.Yvel;
     document.getElementById('myDiv').innerHTML = strikerangle;
 
+
+    document.getElementById('scoreboard').innerHTML = 'score2' + " " +score2;
+
+    document.getElementById('scoreboard2').innerHTML = 'score1' + " " +score1;
+
+    if(coin1.show==0)
+    {
+      if(player1==1)
+       document.getElementById('red').innerHTML = "Red went into hole.Hit the black to get it.";
+      else
+        document.getElementById('red').innerHTML = 'Red went into hole.Hit the white to get it.';
+      reddown=1;
+    }
+    var ddd;
+    if((totalelapsedtime/1000)<1)
+    {
+      ddd=0;
+    }
+    else
+    {
+      ddd=(totalelapsedtime/1000).toPrecision(1)
+    }
+
+    document.getElementById('timer').innerHTML = 'Time' + " " +ddd;
+
     // console.log('setstriker');
     // console.log(setstriker);
 
@@ -270,11 +318,24 @@ addEventListener('click', function(event) {
         cameraMatrix[12],
         cameraMatrix[13],
         cameraMatrix[14]];
+    totalelapsedtime += 10;
+    if(totalelapsedtime>5000)
+    {
+      if(player1==1)
+        score1-=5;
+      if(player2==1)
+        score2-=5;
+      totalelapsedtime=0;
+    }
 
     var up = [0, 1, 0];
     // console.log(cameraPosition);
     // Compute the camera's matrix using look at.
-    var cameraMatrix = makeLookAt([-350,400,300], [0,400,300], up);
+    var cameraMatrix = makeLookAt([-350,campos,300], [0,400,300], up);
+    if(coinview==1)
+    {
+      var cameraMatrix = makeLookAt([-200,strikerdict.Ypos,strikerdict.Xpos], [0,400,strikerdict.Xpos], up);
+    }
     // Make a view matrix from the camera matrix.
     var viewMatrix = makeInverse(cameraMatrix);
 
@@ -329,6 +390,13 @@ addEventListener('click', function(event) {
     matrix = computematrix([49,400,400],rotation,scale);
     drawObject(matrix,vpmatrix,centerboard,black,36,1);
 
+    if(setstrikermove!=1)
+    {
+    var arrow = cuboidv(3,3,strikervelocity*2-100);
+    matrix = computematrix([40,strikerdict.Ypos-(strikervelocity-50)*Math.sin((strikerangle*Math.PI)/180),strikerdict.Xpos-(strikervelocity-50)*Math.cos((strikerangle*Math.PI)/180)],[(90-strikerangle)*Math.PI/180,0,0],scale);
+    // matrix = computematrix([49,200,295],rotation,scale);
+    drawObject(matrix,vpmatrix,arrow,black,36,1);
+  }
 
 ///////////  circles on lines
     var coin = cylinder(6,5,18);
@@ -362,13 +430,13 @@ addEventListener('click', function(event) {
 
     /// holes
     var holes = cylinder(12,3,18);
-    matrix = computematrix([40,272,418],rotation,scale);
+    matrix = computematrix([40,272+offset,418],rotation,scale);
     drawObject(matrix,vpmatrix,holes,coinblack,216,1);
-    matrix = computematrix([40,272,176],rotation,scale);
+    matrix = computematrix([40,272+offset,176],rotation,scale);
     drawObject(matrix,vpmatrix,holes,coinblack,216,1);
-    matrix = computematrix([40,530,418],rotation,scale);
+    matrix = computematrix([40,530+offset,418],rotation,scale);
     drawObject(matrix,vpmatrix,holes,coinblack,216,1);
-    matrix = computematrix([40,530,178],rotation,scale);
+    matrix = computematrix([40,530+offset,178],rotation,scale);
     drawObject(matrix,vpmatrix,holes,coinblack,216,1);
 
     if(setstriker==1)
@@ -424,7 +492,7 @@ addEventListener('click', function(event) {
     var striker = cylinder(9,3,18);
     var whitecoin = whitecoincolor(194,125,47);
     var redcoin = whitecoincolor(234,0,0);
-    matrix = computematrix([40,strikerdict.Ypos,strikerdict.Xpos],rotation,scale);
+    matrix = computematrix([40,strikerdict.Ypos+offset,strikerdict.Xpos],rotation,scale);
     drawObject(matrix,vpmatrix,striker,coinblack,216,1);
 
 ///// coins
@@ -494,53 +562,134 @@ addEventListener('click', function(event) {
     // console.log(distance1);
 
     var coin = cylinder(7,3,18);
-    matrix = computematrix([40,coin1.Ypos,coin1.Xpos],rotation,scale);
-    drawObject(matrix,vpmatrix,coin,redcoin,216,1);
+    matrix = computematrix([40,coin1.Ypos+offset,coin1.Xpos],rotation,scale);
+    if(coin1.show==1)
+      drawObject(matrix,vpmatrix,coin,redcoin,216,1);
 
-    matrix = computematrix([40,coin2.Ypos,coin2.Xpos],rotation,scale);
-    drawObject(matrix,vpmatrix,coin,coinblack,216,1);
+    matrix = computematrix([40,coin2.Ypos+offset,coin2.Xpos],rotation,scale);
+    if(coin2.show==1)
+      drawObject(matrix,vpmatrix,coin,coinblack,216,1);
 
-    matrix = computematrix([40,coin3.Ypos,coin3.Xpos],rotation,scale);
-    drawObject(matrix,vpmatrix,coin,coinblack,216,1);
+    matrix = computematrix([40,coin3.Ypos+offset,coin3.Xpos],rotation,scale);
+    if(coin3.show==1)
+      drawObject(matrix,vpmatrix,coin,coinblack,216,1);
 
-    matrix = computematrix([40,coin4.Ypos,coin4.Xpos],rotation,scale);
-    drawObject(matrix,vpmatrix,coin,coinblack,216,1);
+    matrix = computematrix([40,coin4.Ypos+offset,coin4.Xpos],rotation,scale);
+    if(coin4.show==1)
+      drawObject(matrix,vpmatrix,coin,coinblack,216,1);
 
-    matrix = computematrix([40,coin5.Ypos,coin5.Xpos],rotation,scale);
-    drawObject(matrix,vpmatrix,coin,coinblack,216,1);
+    matrix = computematrix([40,coin5.Ypos+offset,coin5.Xpos],rotation,scale);
+    if(coin5.show==1)
+      drawObject(matrix,vpmatrix,coin,coinblack,216,1);
 
-    matrix = computematrix([40,coin6.Ypos,coin6.Xpos],rotation,scale);
-    drawObject(matrix,vpmatrix,coin,whitecoin,216,1);
+    matrix = computematrix([40,coin6.Ypos+offset,coin6.Xpos],rotation,scale);
+    if(coin6.show==1)
+      drawObject(matrix,vpmatrix,coin,whitecoin,216,1);
 
-    matrix = computematrix([40,coin7.Ypos,coin7.Xpos],rotation,scale);
-    drawObject(matrix,vpmatrix,coin,whitecoin,216,1);
+    matrix = computematrix([40,coin7.Ypos+offset,coin7.Xpos],rotation,scale);
+    if(coin7.show==1)
+      drawObject(matrix,vpmatrix,coin,whitecoin,216,1);
 
-    matrix = computematrix([40,coin8.Ypos,coin8.Xpos],rotation,scale);
-    drawObject(matrix,vpmatrix,coin,whitecoin,216,1);
+    matrix = computematrix([40,coin8.Ypos+offset,coin8.Xpos],rotation,scale);
+    if(coin8.show==1)
+      drawObject(matrix,vpmatrix,coin,whitecoin,216,1);
 
-    matrix = computematrix([40,coin9.Ypos,coin9.Xpos],rotation,scale);
-    drawObject(matrix,vpmatrix,coin,whitecoin,216,1);
-
+    matrix = computematrix([40,coin9.Ypos+offset,coin9.Xpos],rotation,scale);
+    if(coin9.show==1)
+      drawObject(matrix,vpmatrix,coin,whitecoin,216,1);
+    if(coin1.show==1)
+      checkholes(coin1);
+    if(coin2.show==1)
+      checkholes(coin2,1);
+    if(coin3.show==1)
+      checkholes(coin3,1);
+    if(coin4.show==1)
+      checkholes(coin4,1);
+    if(coin5.show==1)
+      checkholes(coin5,1);
+    if(coin6.show==1)
+      checkholes(coin6,2);
+    if(coin7.show==1)
+      checkholes(coin7,2);
+    if(coin8.show==1)
+      checkholes(coin8,2);
+    if(coin9.show==1)
+      checkholes(coin9,2);
+    // console.log(coin1.show);
     y = y+1;
     // console.log(mouseX);
-    if(elapsedtime>1000)
+    if(elapsedtime>2500)
     { 
       elapsedtime = 0;
       setstriker=1;
       setdirection=0;
       setstrikermove=0;
-      if(player1==1)
-      {
-        player1=0;
-        player2=1;
-      }
-      else
-      {
-        player1=1;
-        player2=0;
-      }
+      // if(coin1.show==1)
+      // {
+        if(player1==1)
+        {
+          player1=0;
+          player2=1;
+          totalelapsedtime=0;
+        }
+        else
+        {
+          player1=1;
+          player2=0;
+          totalelapsedtime=0;
+        }
+      // }
 
     }
+
+  }
+
+  
+
+  function checkholes(name,x)
+  {
+      if(name.Xpos>414 && name.Ypos>525)
+      {
+        name.show = 0;
+      }
+      if(name.Xpos<183 && name.Ypos>525)
+      {
+        name.show = 0;
+      }
+      if(name.Xpos<183 && name.Ypos<276)
+      {
+        name.show = 0;
+      }
+      if(name.Xpos>414 && name.Ypos<276)
+      {
+        name.show = 0;
+      }
+      if(name.show==0)
+      {
+        if(player1==1)
+        {
+          if(x==1)
+          {
+            score1 += 5;
+          }
+          if(x==2)
+          {
+            score1 -= 20;
+          }
+        }
+        if(player2==1)
+        {
+          if(x==2)
+          {
+            score2 += 5;
+          }
+          if(x==1)
+          {
+            score2 -= 20;
+          }
+        }
+
+      }
 
   }
 
@@ -549,7 +698,8 @@ addEventListener('click', function(event) {
     var distance = Math.sqrt(Math.pow((obj2.Xpos- obj1.Xpos),2) + Math.pow((obj2.Ypos- obj1.Ypos),2));
     if(distance<x)
     {
-      conserve_momentum(obj1,obj2,x);
+      if(obj1.show==1 && obj2.show==1)
+        conserve_momentum(obj1,obj2,x);
     }
   }
 
@@ -1045,137 +1195,7 @@ function circleblack(n)
 }
 
 // Fill the buffer with colors for the 'F'.
-function setColors(gl) {
-  var colours = new Uint8Array([
-          // left column front
-        200,  70, 120,
-        200,  70, 120,
-        200,  70, 120,
-        200,  70, 120,
-        200,  70, 120,
-        200,  70, 120,
 
-          // top rung front
-        200,  70, 120,
-        200,  70, 120,
-        200,  70, 120,
-        200,  70, 120,
-        200,  70, 120,
-        200,  70, 120,
-
-          // middle rung front
-        200,  70, 120,
-        200,  70, 120,
-        200,  70, 120,
-        200,  70, 120,
-        200,  70, 120,
-        200,  70, 120,
-
-          // left column back
-        80, 70, 200,
-        80, 70, 200,
-        80, 70, 200,
-        80, 70, 200,
-        80, 70, 200,
-        80, 70, 200,
-
-          // top rung back
-        80, 70, 200,
-        80, 70, 200,
-        80, 70, 200,
-        80, 70, 200,
-        80, 70, 200,
-        80, 70, 200,
-
-          // middle rung back
-        80, 70, 200,
-        80, 70, 200,
-        80, 70, 200,
-        80, 70, 200,
-        80, 70, 200,
-        80, 70, 200,
-
-          // top
-        70, 200, 210,
-        70, 200, 210,
-        70, 200, 210,
-        70, 200, 210,
-        70, 200, 210,
-        70, 200, 210,
-
-          // top rung right
-        200, 200, 70,
-        200, 200, 70,
-        200, 200, 70,
-        200, 200, 70,
-        200, 200, 70,
-        200, 200, 70,
-
-          // under top rung
-        210, 100, 70,
-        210, 100, 70,
-        210, 100, 70,
-        210, 100, 70,
-        210, 100, 70,
-        210, 100, 70,
-
-          // between top rung and middle
-        210, 160, 70,
-        210, 160, 70,
-        210, 160, 70,
-        210, 160, 70,
-        210, 160, 70,
-        210, 160, 70,
-
-          // top of middle rung
-        70, 180, 210,
-        70, 180, 210,
-        70, 180, 210,
-        70, 180, 210,
-        70, 180, 210,
-        70, 180, 210,
-
-          // right of middle rung
-        100, 70, 210,
-        100, 70, 210,
-        100, 70, 210,
-        100, 70, 210,
-        100, 70, 210,
-        100, 70, 210,
-
-          // bottom of middle rung.
-        76, 210, 100,
-        76, 210, 100,
-        76, 210, 100,
-        76, 210, 100,
-        76, 210, 100,
-        76, 210, 100,
-
-          // right of bottom
-        140, 210, 80,
-        140, 210, 80,
-        140, 210, 80,
-        140, 210, 80,
-        140, 210, 80,
-        140, 210, 80,
-
-          // bottom
-        90, 130, 110,
-        90, 130, 110,
-        90, 130, 110,
-        90, 130, 110,
-        90, 130, 110,
-        90, 130, 110,
-
-          // left side
-        160, 160, 220,
-        160, 160, 220,
-        160, 160, 220,
-        160, 160, 220,
-        160, 160, 220,
-        160, 160, 220]);
-    return colours;
-}
 
 </script>
 <!-- vertex shader -->
@@ -1217,6 +1237,14 @@ function setColors(gl) {
 </div>
 
 <div id='myDiv'></div>
+
+<div id="scoreboard" style="background:white;width:200px;height:100px;margin-left:80%;margin-top:-40%;padding-left:1%;padding-top:1%;"><span color:red></span></div>
+
+<div id="scoreboard2" style="background:white;width:200px;height:100px;margin-left:80%;margin-top:10%;padding-left:1%;padding-top:1%;"><span color:red></span></div>  
+
+<div id="timer" style="background:white;width:200px;height:100px;margin-left:60%;margin-top:-18%;padding-left:1%;padding-top:1%;"><span color:red></span></div> 
+
+<p id='red' style="width:200px;height:100px;margin-left:60%;margin-top:-25%;padding-left:1%;padding-top:1%;"></p> 
 
 
 </body></html>

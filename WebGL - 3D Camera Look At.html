@@ -24,6 +24,10 @@ $(function()
 {
   main();
 });
+var globalvar = 0;
+function Replayit() {
+  globalvar = 1;
+}
 
 function main()
 {
@@ -145,6 +149,17 @@ function main()
   var totalelapsedtime=0;
   var coinview=0;
   var reddown =0;
+  var strcoin1 = makestruct(strcoin1,399,300,0,0);
+  var strcoin2 = makestruct(strcoin2,416,316,0,0);
+  var strcoin3 = makestruct(strcoin3,385,316,0,0);
+  var strcoin4 = makestruct(strcoin4,385,284,0,0);
+  var strcoin5 = makestruct(strcoin5,416,284,0,0);
+  var strcoin6 = makestruct(strcoin5,422,300,0,0);
+  var strcoin7 = makestruct(strcoin5,378,300,0,0);
+  var strcoin8 = makestruct(strcoin5,399,278,0,0);
+  var strcoin9 = makestruct(strcoin5,399,322,0,0);
+  var strstrikerdict = makestruct(strstrikerdict,292,0,0,0);
+  var strstrikerangle=90,strstrikerposX=0,strstrikerposY=0,strplayer=1,strscore1=100,strscore2=100;
 
   //drawScene();
   
@@ -195,7 +210,41 @@ addEventListener('mousemove', function(event) {
 }
 
 
-addEventListener('click', function(event) {
+function store()
+{
+  strcoin1.Xpos = coin1.Xpos;
+  strcoin1.Ypos = coin1.Ypos;
+  strcoin2.Xpos = coin2.Xpos;
+  strcoin2.Ypos = coin2.Ypos;
+  strcoin3.Xpos = coin3.Xpos;
+  strcoin3.Ypos = coin3.Ypos;
+  strcoin4.Xpos = coin4.Xpos;
+  strcoin4.Ypos = coin4.Ypos;
+  strcoin5.Xpos = coin5.Xpos;
+  strcoin5.Ypos = coin5.Ypos;
+  strcoin6.Xpos = coin6.Xpos;
+  strcoin6.Ypos = coin6.Ypos;
+  strcoin7.Xpos = coin7.Xpos;
+  strcoin7.Ypos = coin7.Ypos;
+  strcoin8.Xpos = coin8.Xpos;
+  strcoin8.Ypos = coin8.Ypos;
+  strcoin9.Xpos = coin9.Xpos;
+  strcoin9.Ypos = coin9.Ypos;
+  strstrikerdict.Xpos = strikerdict.Xpos;
+  strstrikerdict.Ypos = strikerdict.Ypos;
+  strstrikerdict.Xvel = strikerdict.Xvel;
+  strstrikerdict.Yvel = strikerdict.Yvel;
+  strstrikerangle     = strikerangle;
+  if(player1==1)
+    strplayer=1;
+  else
+    strplayer=2;
+  strscore1 = score1;
+  strscore2 = score2;
+}
+
+
+canvas.addEventListener('click', function(event) {
   if(setdirection==1)
   {
     setstriker = 0;
@@ -212,6 +261,7 @@ addEventListener('click', function(event) {
     strikerdict.Xvel = strikervelocityX;
     strikerdict.Yvel = strikervelocityY;
     setstrikermove = 1;
+    store();
   }
   if(setstriker==1)
   {
@@ -269,6 +319,59 @@ addEventListener('click', function(event) {
   function drawScene()
   {
 
+    if(globalvar==1)
+    {
+      if(setstriker==0)
+      {
+        alert("You initiated the striker.Replay is not possible");
+        globalvar=0;
+      }
+      else
+      {
+        coin1.Xpos = strcoin1.Xpos;
+        coin1.Ypos = strcoin1.Ypos;
+        coin2.Xpos = strcoin2.Xpos;
+        coin2.Ypos = strcoin2.Ypos;
+        coin3.Xpos = strcoin3.Xpos;
+        coin3.Ypos = strcoin3.Ypos;
+        coin4.Xpos = strcoin4.Xpos;
+        coin4.Ypos = strcoin4.Ypos;
+        coin5.Xpos = strcoin5.Xpos;
+        coin5.Ypos = strcoin5.Ypos;
+        coin6.Xpos = strcoin6.Xpos;
+        coin6.Ypos = strcoin6.Ypos;
+        coin7.Xpos = strcoin7.Xpos;
+        coin7.Ypos = strcoin7.Ypos;
+        coin8.Xpos = strcoin8.Xpos;
+        coin8.Ypos = strcoin8.Ypos;
+        coin9.Xpos = strcoin9.Xpos;
+        coin9.Ypos = strcoin9.Ypos;
+
+        strikerdict.Xpos = strstrikerdict.Xpos;
+        strikerdict.Ypos = strstrikerdict.Ypos;
+        strikerdict.Xvel = strstrikerdict.Xvel;
+        strikerdict.Yvel = strstrikerdict.Yvel;
+        strikerangle     = strstrikerangle;
+        if(strplayer==1)
+        {
+          player1=1;
+          player2=0;
+        }
+        else
+        {
+          player2=1;
+          player1=0;
+        }
+        score1 = strscore1;
+        score2 = strscore2;
+        globalvar=0;
+        setstrikermove = 1;
+        setdirection   = 0;
+        setstriker     = 0;
+      }
+    }
+// console.log(strcoin1);
+
     // Clear the canvas AND the depth buffer.
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
@@ -288,6 +391,8 @@ addEventListener('click', function(event) {
         document.getElementById('red').innerHTML = 'Red went into hole.Hit the white to get it.';
       reddown=1;
     }
+
+    // document.getElementById('replay').innerHTML = strcoin1.Xpos + " " + strcoin1.Ypos;
     var ddd;
     if((totalelapsedtime/1000)<1)
     {
@@ -705,8 +810,8 @@ addEventListener('click', function(event) {
 
   function normalmove(name)
   {
-    name.Xvel *= 0.95;
-    name.Yvel *= 0.95;
+    name.Xvel *= 0.90;
+    name.Yvel *= 0.90;
     name.Xpos += name.Xvel*1.5;
     name.Ypos += name.Yvel*1.5;
 
@@ -1230,11 +1335,14 @@ function circleblack(n)
 </head> 
 <body>
 <canvas id="canvas" width="800" height="600"></canvas>
-<div id="uiContainer">
+<!-- <div id="uiContainer">
   <div id="ui">
     <div id="cameraAngle"><div class="gman-slider-outer"><div class="gman-slider-upper"><div class="gman-slider-label">cameraAngle</div><div class="gman-slider-value">-360</div></div><div class="gman-slider-slider ui-slider ui-slider-horizontal ui-widget ui-widget-content ui-corner-all"><a style="left: 0%;" class="ui-slider-handle ui-state-default ui-corner-all ui-state-focus" href="#"></a></div></div></div>
   </div>
-</div>
+</div> -->
+
+
+
 
 <div id='myDiv'></div>
 
@@ -1245,6 +1353,12 @@ function circleblack(n)
 <div id="timer" style="background:white;width:200px;height:100px;margin-left:60%;margin-top:-18%;padding-left:1%;padding-top:1%;"><span color:red></span></div> 
 
 <p id='red' style="width:200px;height:100px;margin-left:60%;margin-top:-25%;padding-left:1%;padding-top:1%;"></p> 
+<!-- <canvas style="width:100px;height:50px;margin-left:70%;margin-top:-100%;"></canvas> -->
+
+<!-- <p style="width:100px;height:50px;margin-left:70%;margin-top:-35%;padding-left:1%;padding-top:1%;">ram</p>  -->
+
+<input type="button" value="Replay" onclick="Replayit();" style="margin-left:65%;">
+
 
 
 </body></html>
